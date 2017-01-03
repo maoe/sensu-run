@@ -1,0 +1,29 @@
+name: sensu-run
+version: 0.0.0
+synopsis: Run a command and send the result to Sensu client socket
+-- description:
+license: BSD3
+license-file: LICENSE
+author: Mitsutoshi Aoe
+maintainer: maoe@foldr.in
+copyright: Copyright (C) 2016-2017 Mitsutoshi Aoe
+category: System
+build-type: Simple
+extra-source-files: CHANGELOG.md
+cabal-version: >= 1.10
+
+executable sensu-run
+  main-is: sensu-run.hs
+  build-depends:
+      aeson
+    , base >= 4.9 && < 4.10
+    , bytestring
+    , network
+    , optparse-applicative >= 0.12 && < 0.14
+    , process
+    , temporary < 1.3
+    , text
+    , time
+    , vector
+  ghc-options: -Wall -threaded
+  default-language: Haskell2010
