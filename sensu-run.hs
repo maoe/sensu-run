@@ -37,25 +37,11 @@ main = do
   Options {..} <- O.execParser $ O.info (O.helper <*> options) O.fullDesc
   withSystemTempFile "sensu-run.XXX" $ \path hdl -> do
     executed <- getCurrentTime
-    (_, _, _, ph) <- createProcess CreateProcess
-      { cmdspec
-      , cwd = Nothing
-      , env = Nothing
-      , std_in = Inherit
-      , std_out = UseHandle hdl
-      , std_err = UseHandle hdl
-      , close_fds = False
-      , create_group = False
-      , delegate_ctlc = False
-      , detach_console = False
-      , create_new_console = False
-      , new_session = False
-      , child_group = Nothing
-      , child_user = Nothing
-      }
-    rawStatus <- withTimeout timeout $ waitForProcess ph
+    rawStatus <- bracket
+      (startProcess cmdspec hdl)
+      terminateProcess
+      (withTimeout timeout . waitForProcess)
     exited <- getCurrentTime
-    terminateProcess ph
     bracket
       (socket AF_INET Stream defaultProtocol)
       close
@@ -64,12 +50,12 @@ main = do
         let
           encoded = encode $ CheckResult
             { command = cmdspec
-            , duration = diffUTCTime exited executed
             , output = TL.decodeUtf8With TE.lenientDecode rawOutput
             , status = case rawStatus of
               Nothing -> UNKNOWN
               Just ExitSuccess -> OK
               Just (ExitFailure {}) -> CRITICAL
+            , duration = diffUTCTime exited executed
             , ..
             }
         if dryRun
@@ -88,6 +74,26 @@ main = do
         hPutStrLn stderr $ showCmdSpec cmdspec ++ " timed out"
         exitFailure
       Just (ExitFailure {}) -> exitFailure
+
+startProcess :: CmdSpec -> Handle -> IO ProcessHandle
+startProcess cmdspec hdl = do
+  (_, _, _, ph) <- createProcess CreateProcess
+    { cmdspec
+    , cwd = Nothing
+    , env = Nothing
+    , std_in = Inherit
+    , std_out = UseHandle hdl
+    , std_err = UseHandle hdl
+    , close_fds = False
+    , create_group = False
+    , delegate_ctlc = False
+    , detach_console = False
+    , create_new_console = False
+    , new_session = False
+    , child_group = Nothing
+    , child_user = Nothing
+    }
+  return ph
 
 withTimeout :: Maybe NominalDiffTime -> IO a -> IO (Maybe a)
 withTimeout time io = case time of
