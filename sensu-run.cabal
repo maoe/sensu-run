@@ -1,12 +1,14 @@
 name: sensu-run
 version: 0.0.0
-synopsis: Run a command and send the result to Sensu client socket
+synopsis: A tool to send command execution results to Sensu
 -- description:
 license: BSD3
 license-file: LICENSE
 author: Mitsutoshi Aoe
 maintainer: maoe@foldr.in
 copyright: Copyright (C) 2016-2017 Mitsutoshi Aoe
+homepage: https://github.com/maoe/sensu-run#readme
+bug-reports: https://github.com/maoe/sensu-run/issues
 category: System
 build-type: Simple
 extra-source-files: CHANGELOG.md
