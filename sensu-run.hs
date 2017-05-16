@@ -191,7 +191,7 @@ options = do
     ]
   endpoint <- asum
     [ ClientSocketInput <$> portOption
-    , SensuServer <$> NE.some1 serverOption
+    , SensuServer . NE.fromList <$> O.some serverOption
     ]
   dryRun <- O.switch $ mconcat
     [ O.long "dry-run"
