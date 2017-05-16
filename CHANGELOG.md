@@ -1,5 +1,5 @@
 # Revision history for sensu-run
 
-## 0.0.0  -- YYYY-mm-dd
+## 0.0.0  -- 2017-05-16
 
-* First version. Released on an unsuspecting world.
+* Initial release
