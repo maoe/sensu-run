@@ -16,8 +16,8 @@ will install the `sensu-run` command in `~/.local/bin`.
 ```
 % sensu-run --help
 Usage: sensu-run (-n|--name NAME) [--source SOURCE] [--ttl SECONDS]
-                 [--timeout SECONDS] --handler HANDLER [--port PORT]
-                 [--dry|--dry-run] [-s|--shell] COMMAND
+                 [--timeout SECONDS] --handler HANDLER ([--port PORT] |
+                 [--server URL]) [--dry|--dry-run] [-s|--shell] COMMAND
 
 Available options:
   -h,--help                Show this help text
@@ -29,8 +29,9 @@ Available options:
   --timeout SECONDS        The check executaion duration timeout in seconds
   --handler HANDLER        Sensu event handler(s) to use for events created by
                            the check
-  --port PORT              Port number that sensu-client is listening
-                           on (default: 3030)
+  --port PORT              Send results to the local sensu-client listening on
+                           the specified port (default: 3030)
+  --server URL             Send results to the specified Sensu server
   -s,--shell               Execute the command using the shell
 ```
 
