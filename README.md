@@ -1,6 +1,6 @@
 # sensu-run
 
-`sensu-run` runs a command and send its result to Sensu server using the [client socket input](https://sensuapp.org/docs/latest/reference/clients.html#client-socket-input). It is useful to monitor cron jobs for example.
+`sensu-run` runs a command and send its result to Sensu server using the [client socket input](https://sensuapp.org/docs/latest/reference/clients.html#client-socket-input) or via the Sensu API. It is useful to monitor cron jobs for example.
 
 ## Installation
 
@@ -58,3 +58,11 @@ Without the `--dry-run` option, `sensu-run` sends the output to localhost:PORT, 
 | 0                 | 0 (OK)         |
 | non-zero          | 2 (CRITICAL)   |
 | command timed out | 3 (UNKNOWN)    |
+
+### Sensu API
+
+`sensu-run` supports posting check results via Sensu API as well. Use `--server` option to specify Sensu server addresses. If multiple servers are specified, `sensu-run` tries them one by one until it succeeds.
+
+```
+sensu-run --name check-true --handler foo --server sensu1.example.com --server sensu2.example.com --dry-run -- du -s $HOME/src
+```
