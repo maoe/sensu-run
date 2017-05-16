@@ -1,6 +1,7 @@
 {-# LANGUAGE ApplicativeDo #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
@@ -11,15 +12,21 @@
 {-# LANGUAGE ViewPatterns #-}
 module Main where
 import Control.Exception
+import Data.Foldable
+import Data.List.NonEmpty (NonEmpty)
 import Data.Maybe
 import System.Exit
 import System.IO
+import qualified Data.List.NonEmpty as NE
 import qualified System.Timeout as Timeout
 
+import Control.Lens hiding ((.=))
 import Data.Aeson
 import Data.Time
 import Data.Time.Clock.POSIX
+import Network.HTTP.Client (HttpException)
 import Network.Socket
+import System.FilePath ((</>))
 import System.IO.Temp
 import System.Process
 import qualified Data.ByteString.Lazy as BL
@@ -28,7 +35,9 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding.Error as TE
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL
+import qualified Network.HTTP.Types.Status as HT
 import qualified Network.Socket.ByteString.Lazy as Socket
+import qualified Network.Wreq as W
 import qualified Options.Applicative as O
 
 main :: IO ()
@@ -42,38 +51,68 @@ main = do
       terminateProcess
       (withTimeout timeout . waitForProcess)
     exited <- getCurrentTime
-    bracket
-      (socket AF_INET Stream defaultProtocol)
-      close
-      $ \sock -> do
-        rawOutput <- BL.readFile path
-        let
-          encoded = encode $ CheckResult
-            { command = cmdspec
-            , output = TL.decodeUtf8With TE.lenientDecode rawOutput
-            , status = case rawStatus of
-              Nothing -> UNKNOWN
-              Just ExitSuccess -> OK
-              Just (ExitFailure {}) -> CRITICAL
-            , duration = diffUTCTime exited executed
-            , ..
-            }
-        if dryRun
-          then BL8.putStrLn encoded
-          else do
-            localhost <- inet_addr "127.0.0.1"
-            connect sock $ SockAddrInet port localhost
-            Socket.sendAll sock encoded
-        `catch` \(ioe :: IOException) -> do
-          hPutStrLn stderr $
-            "Failed to write results to localhost:3030 (" ++ show ioe ++ ")"
-          exitFailure
+    rawOutput <- BL.readFile path
+    let
+      encoded = encode $ CheckResult
+        { command = cmdspec
+        , output = TL.decodeUtf8With TE.lenientDecode rawOutput
+        , status = case rawStatus of
+          Nothing -> UNKNOWN
+          Just ExitSuccess -> OK
+          Just (ExitFailure {}) -> CRITICAL
+        , duration = diffUTCTime exited executed
+        , ..
+        }
+    if dryRun
+      then BL8.putStrLn encoded
+      else case endpoint of
+        ClientSocketInput port -> sendToClientSocketInput port encoded
+        SensuServer urls -> sendToSensuServer urls encoded
     case rawStatus of
       Just ExitSuccess -> exitSuccess
       Nothing -> do
         hPutStrLn stderr $ showCmdSpec cmdspec ++ " timed out"
         exitFailure
       Just (ExitFailure {}) -> exitFailure
+
+sendToClientSocketInput
+  :: PortNumber -- ^ Listening port of Sensu client socket
+  -> BL8.ByteString -- ^ Payload
+  -> IO ()
+sendToClientSocketInput port payload = bracket open close $ \sock -> do
+  localhost <- inet_addr "127.0.0.1"
+  connect sock $ SockAddrInet port localhost
+  Socket.sendAll sock payload
+  `catch` \(ioe :: IOException) -> do
+    hPutStrLn stderr $
+      "Failed to write results to localhost:3030 (" ++ show ioe ++ ")"
+    exitFailure
+  where
+    open = socket AF_INET Stream defaultProtocol
+
+sendToSensuServer
+  :: NonEmpty String -- ^ Sensu server base URLs
+  -> BL8.ByteString -- ^ Payload
+  -> IO ()
+sendToSensuServer urls payload =
+  foldr go (handleError "no more retry") urls
+    `catch` \(e :: HttpException) -> handleError (show e)
+  where
+    go url retry = do
+      resp <- W.postWith params (url </> "results") payload
+      let status = resp ^. W.responseStatus
+      if
+        | HT.statusIsClientError status -> handleError $ show status
+        | HT.statusIsServerError status -> retry
+        | HT.statusIsSuccessful status -> return ()
+        | otherwise ->
+          fail $ "sendToSensuServer: unexpected status " ++ show status
+    params = W.defaults &
+      W.header "Content-Type" .~ ["application/json"]
+    handleError reason = do
+      hPutStrLn stderr $
+        "Failed to POST results to Sensu server (" ++ reason ++ ")"
+      exitFailure
 
 startProcess :: CmdSpec -> Handle -> IO ProcessHandle
 startProcess cmdspec hdl = do
@@ -107,9 +146,18 @@ data Options = Options
   , ttl :: Maybe NominalDiffTime
   , timeout :: Maybe NominalDiffTime
   , handlers :: [T.Text]
-  , port :: PortNumber
+  , endpoint :: Endpoint
   , dryRun :: Bool
   }
+
+data Endpoint
+  = ClientSocketInput PortNumber
+  -- ^ Local client socket input
+  | SensuServer (NonEmpty String)
+  -- ^ Sensu server API
+  --
+  -- Multiple servers can be specified. sensu-run retries sequentially until it
+  -- succeeds.
 
 options :: O.Parser Options
 options = do
@@ -141,12 +189,9 @@ options = do
     , O.metavar "HANDLER"
     , O.help "Sensu event handler(s) to use for events created by the check"
     ]
-  port <- O.option O.auto $ mconcat
-    [ O.long "port"
-    , O.metavar "PORT"
-    , O.help "Port number that sensu-client is listening on"
-    , O.showDefault
-    , O.value 3030
+  endpoint <- asum
+    [ ClientSocketInput <$> portOption
+    , SensuServer <$> NE.some1 serverOption
     ]
   dryRun <- O.switch $ mconcat
     [ O.long "dry-run"
@@ -170,6 +215,19 @@ options = do
         cmdSpec (fromMaybe False -> isShell) args
           | isShell = ShellCommand (unwords args)
           | otherwise = RawCommand (head args) (tail args)
+    portOption = O.option O.auto $ mconcat
+      [ O.long "port"
+      , O.metavar "PORT"
+      , O.help
+        "Send results to the local sensu-client listening on the specified port"
+      , O.showDefault
+      , O.value 3030
+      ]
+    serverOption = O.strOption $ mconcat
+      [ O.long "server"
+      , O.metavar "URL"
+      , O.help "Send results to the specified Sensu server"
+      ]
 
 data CheckResult = CheckResult
   { name :: T.Text
