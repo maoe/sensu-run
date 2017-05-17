@@ -85,7 +85,8 @@ sendToClientSocketInput port payload = bracket open close $ \sock -> do
   Socket.sendAll sock payload
   `catch` \(ioe :: IOException) -> do
     hPutStrLn stderr $
-      "Failed to write results to localhost:3030 (" ++ show ioe ++ ")"
+      "Failed to write results to localhost:" ++ show port
+        ++ " (" ++ show ioe ++ ")"
     exitFailure
   where
     open = socket AF_INET Stream defaultProtocol
