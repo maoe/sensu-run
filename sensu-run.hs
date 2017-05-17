@@ -53,13 +53,13 @@ main = do
     exited <- getCurrentTime
     rawOutput <- BL.readFile path
     let
-      encoded = encode $ CheckResult
+      encoded = encode CheckResult
         { command = cmdspec
         , output = TL.decodeUtf8With TE.lenientDecode rawOutput
         , status = case rawStatus of
           Nothing -> UNKNOWN
           Just ExitSuccess -> OK
-          Just (ExitFailure {}) -> CRITICAL
+          Just ExitFailure {} -> CRITICAL
         , duration = diffUTCTime exited executed
         , ..
         }
@@ -73,7 +73,7 @@ main = do
       Nothing -> do
         hPutStrLn stderr $ showCmdSpec cmdspec ++ " timed out"
         exitFailure
-      Just (ExitFailure {}) -> exitFailure
+      Just ExitFailure {} -> exitFailure
 
 sendToClientSocketInput
   :: PortNumber -- ^ Listening port of Sensu client socket
