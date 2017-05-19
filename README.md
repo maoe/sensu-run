@@ -7,7 +7,7 @@
 Install [stack](https://docs.haskellstack.org/en/stable/README/).
 
 ```
-stack install sensu-run
+stack install --resolver=nightly sensu-run
 ```
 will install the `sensu-run` command in `~/.local/bin`.
 
