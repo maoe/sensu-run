@@ -1,4 +1,9 @@
 # sensu-run
+[![Hackage](https://img.shields.io/hackage/v/sensu-run.svg)](http://hackage.haskell.org/package/sensu-run)
+[![Hackage-Deps](https://img.shields.io/hackage-deps/v/sensu-run.svg)](http://packdeps.haskellers.com/feed?needle=sensu-run)
+[![Stackage Nightly](http://stackage.org/package/sensu-run/badge/nightly)](http://stackage.org/nightly/package/sensu-run)
+[![Build Status](https://travis-ci.org/maoe/sensu-run.svg?branch=master)](https://travis-ci.org/maoe/sensu-run)
+[![Build status](https://ci.appveyor.com/api/projects/status/k9594kkn4tncotqt?svg=true)](https://ci.appveyor.com/project/maoe/sensu-run)
 
 `sensu-run` runs a command and send its result to Sensu server using the [client socket input](https://sensuapp.org/docs/latest/reference/clients.html#client-socket-input) or via the Sensu API. It is useful to monitor cron jobs for example.
 
