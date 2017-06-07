@@ -155,10 +155,11 @@ data Endpoint
   = ClientSocketInput PortNumber
   -- ^ Local client socket input
   | SensuServer (NonEmpty String)
-  -- ^ Sensu server API
+  -- ^ Sensu server API or a client HTTP socket
   --
-  -- Multiple servers can be specified. sensu-run retries sequentially until it
-  -- succeeds.
+  -- Multiple HTTP endpoints can be specified. sensu-run retries sequentially
+  -- until it succeeds. By default Sensu servers listen on port 4567 and
+  -- client HTTP sockets listen on 3031.
 
 options :: O.Parser Options
 options = do
