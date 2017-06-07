@@ -239,6 +239,7 @@ data CheckResult = CheckResult
   , executed :: UTCTime
   , duration :: NominalDiffTime
   , output :: TL.Text
+  , handlers :: [T.Text]
   }
 
 pattern OK :: ExitCode
@@ -267,6 +268,7 @@ checkResultKeyValue CheckResult {..} =
     , "duration" .= (realToFrac duration :: Double)
     , "status" .= statusToInt status
     , "output" .= output
+    , "handlers" .= handlers
     ]
     where
       addOptional key val ps = maybe ps (\val' -> key .= val' : ps) val
