@@ -53,13 +53,13 @@ main = do
     exited <- getCurrentTime
     rawOutput <- BL.readFile path
     let
-      encoded = encode $ CheckResult
+      encoded = encode CheckResult
         { command = cmdspec
         , output = TL.decodeUtf8With TE.lenientDecode rawOutput
         , status = case rawStatus of
           Nothing -> UNKNOWN
           Just ExitSuccess -> OK
-          Just (ExitFailure {}) -> CRITICAL
+          Just ExitFailure {} -> CRITICAL
         , duration = diffUTCTime exited executed
         , ..
         }
@@ -73,7 +73,7 @@ main = do
       Nothing -> do
         hPutStrLn stderr $ showCmdSpec cmdspec ++ " timed out"
         exitFailure
-      Just (ExitFailure {}) -> exitFailure
+      Just ExitFailure {} -> exitFailure
 
 sendToClientSocketInput
   :: PortNumber -- ^ Listening port of Sensu client socket
@@ -85,7 +85,8 @@ sendToClientSocketInput port payload = bracket open close $ \sock -> do
   Socket.sendAll sock payload
   `catch` \(ioe :: IOException) -> do
     hPutStrLn stderr $
-      "Failed to write results to localhost:3030 (" ++ show ioe ++ ")"
+      "Failed to write results to localhost:" ++ show port
+        ++ " (" ++ show ioe ++ ")"
     exitFailure
   where
     open = socket AF_INET Stream defaultProtocol
@@ -154,10 +155,11 @@ data Endpoint
   = ClientSocketInput PortNumber
   -- ^ Local client socket input
   | SensuServer (NonEmpty String)
-  -- ^ Sensu server API
+  -- ^ Sensu server API or a client HTTP socket
   --
-  -- Multiple servers can be specified. sensu-run retries sequentially until it
-  -- succeeds.
+  -- Multiple HTTP endpoints can be specified. sensu-run retries sequentially
+  -- until it succeeds. By default Sensu servers listen on port 4567 and
+  -- client HTTP sockets listen on 3031.
 
 options :: O.Parser Options
 options = do
@@ -238,6 +240,7 @@ data CheckResult = CheckResult
   , executed :: UTCTime
   , duration :: NominalDiffTime
   , output :: TL.Text
+  , handlers :: [T.Text]
   }
 
 pattern OK :: ExitCode
@@ -263,9 +266,10 @@ checkResultKeyValue CheckResult {..} =
     , "command" .= showCmdSpec command
     , "issued" .= (floor (utcTimeToPOSIXSeconds issued) :: Int)
     , "executed" .= (floor (utcTimeToPOSIXSeconds executed) :: Int)
-    , "duration" .= (round duration :: Int)
+    , "duration" .= (realToFrac duration :: Double)
     , "status" .= statusToInt status
     , "output" .= output
+    , "handlers" .= handlers
     ]
     where
       addOptional key val ps = maybe ps (\val' -> key .= val' : ps) val

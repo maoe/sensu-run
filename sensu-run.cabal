@@ -1,5 +1,5 @@
 name: sensu-run
-version: 0.0.0
+version: 0.1.0
 synopsis: A tool to send command execution results to Sensu
 description:
   @sensu-run@ is a command line tool to send command execution results to Sensu
@@ -15,7 +15,7 @@ category: System
 build-type: Simple
 extra-source-files: CHANGELOG.md
 cabal-version: >= 1.10
-tested-with: GHC >= 8.0.1 && < 8.1
+tested-with: GHC == 8.0.2
 
 executable sensu-run
   main-is: sensu-run.hs
