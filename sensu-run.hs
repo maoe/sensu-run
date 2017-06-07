@@ -264,7 +264,7 @@ checkResultKeyValue CheckResult {..} =
     , "command" .= showCmdSpec command
     , "issued" .= (floor (utcTimeToPOSIXSeconds issued) :: Int)
     , "executed" .= (floor (utcTimeToPOSIXSeconds executed) :: Int)
-    , "duration" .= (round duration :: Int)
+    , "duration" .= (realToFrac duration :: Double)
     , "status" .= statusToInt status
     , "output" .= output
     ]
