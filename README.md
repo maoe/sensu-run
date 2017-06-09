@@ -43,15 +43,18 @@ Available options:
 `--dry-run` option is useful to check the JSON output:
 
 ```console
-% sensu-run --name check-true --handler foo --dry-run -- du -s $HOME/src | jq .
+% sensu-run --name check-home-src-size --handler foo --dry-run -- du -s $HOME/src | jq .
 {
-  "name": "check-true",
-  "command": "du -s /Users/maoe/src",
-  "issued": 1483426629,
-  "executed": 1483426629,
-  "duration": 45,
+  "name": "check-home-src-size",
+  "command": "du -s /home/maoe/src",
+  "issued": 1496966954,
+  "executed": 1496966954,
+  "duration": 1.235584,
   "status": 0,
-  "output": "52454088\t/Users/maoe/src\n"
+  "output": "44567740\t/home/maoe/src\n",
+  "handlers": [
+    "foo"
+  ]
 }
 ```
 
