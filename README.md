@@ -11,14 +11,14 @@
 
 Install [stack](https://docs.haskellstack.org/en/stable/README/).
 
-```
+```sh
 stack install --resolver=nightly sensu-run
 ```
 will install the `sensu-run` command in `~/.local/bin`.
 
 ## Usage
 
-```
+```console
 % sensu-run --help
 Usage: sensu-run (-n|--name NAME) [--source SOURCE] [--ttl SECONDS]
                  [--timeout SECONDS] --handler HANDLER ([--port PORT] |
@@ -42,7 +42,7 @@ Available options:
 
 `--dry-run` option is useful to check the JSON output:
 
-```
+```console
 % sensu-run --name check-true --handler foo --dry-run -- du -s $HOME/src | jq .
 {
   "name": "check-true",
@@ -69,6 +69,6 @@ Without the `--dry-run` option, `sensu-run` sends the output to localhost:PORT, 
 
 `sensu-run` supports posting check results via Sensu API as well. Use `--server` option to specify Sensu server addresses. If multiple servers are specified, `sensu-run` tries them one by one until it succeeds.
 
-```
+```sh
 sensu-run --name check-true --handler foo --server sensu1.example.com --server sensu2.example.com --dry-run -- du -s $HOME/src
 ```
