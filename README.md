@@ -20,9 +20,10 @@ will install the `sensu-run` command in `~/.local/bin`.
 
 ```
 % sensu-run --help
-Usage: sensu-run (-n|--name NAME) [--source SOURCE] [--ttl SECONDS]
-                 [--timeout SECONDS] --handler HANDLER ([--port PORT] |
-                 [--server URL]) [--dry|--dry-run] [-s|--shell] COMMAND
+Usage: sensu-run ([-n|--name NAME] [--source SOURCE] [--ttl SECONDS]
+                 [--timeout SECONDS] [--handler HANDLER] ([--port PORT] |
+                 [--server URL]) [--dry|--dry-run] [-s|--shell] [COMMAND] |
+                 [-v|--version])
 
 Available options:
   -h,--help                Show this help text
