@@ -15,9 +15,11 @@ import Control.Exception
 import Data.Foldable
 import Data.List.NonEmpty (NonEmpty)
 import Data.Maybe
+import Data.Monoid
 import System.Exit
 import System.IO
 import qualified Data.List.NonEmpty as NE
+import qualified Data.Version as V
 import qualified System.Timeout as Timeout
 
 import Control.Lens hiding ((.=))
@@ -40,40 +42,46 @@ import qualified Network.Socket.ByteString.Lazy as Socket
 import qualified Network.Wreq as W
 import qualified Options.Applicative as O
 
+import qualified Paths_sensu_run as Paths
+
 main :: IO ()
 main = do
   issued <- getCurrentTime
-  Options {..} <- O.execParser $ O.info (O.helper <*> options) O.fullDesc
-  withSystemTempFile "sensu-run.XXX" $ \path hdl -> do
-    executed <- getCurrentTime
-    rawStatus <- bracket
-      (startProcess cmdspec hdl)
-      terminateProcess
-      (withTimeout timeout . waitForProcess)
-    exited <- getCurrentTime
-    rawOutput <- BL.readFile path
-    let
-      encoded = encode CheckResult
-        { command = cmdspec
-        , output = TL.decodeUtf8With TE.lenientDecode rawOutput
-        , status = case rawStatus of
-          Nothing -> UNKNOWN
-          Just ExitSuccess -> OK
-          Just ExitFailure {} -> CRITICAL
-        , duration = diffUTCTime exited executed
-        , ..
-        }
-    if dryRun
-      then BL8.putStrLn encoded
-      else case endpoint of
-        ClientSocketInput port -> sendToClientSocketInput port encoded
-        SensuServer urls -> sendToSensuServer urls encoded
-    case rawStatus of
-      Just ExitSuccess -> exitSuccess
-      Nothing -> do
-        hPutStrLn stderr $ showCmdSpec cmdspec ++ " timed out"
-        exitFailure
-      Just ExitFailure {} -> exitFailure
+  opts <- O.execParser $ O.info (O.helper <*> options) O.fullDesc
+  case opts of
+    ShowVersion -> do
+      putStrLn $ "sensu-run " ++ V.showVersion Paths.version
+      exitSuccess
+    RunOptions {..} -> withSystemTempFile "sensu-run.XXX" $ \path hdl -> do
+      executed <- getCurrentTime
+      rawStatus <- bracket
+        (startProcess cmdspec hdl)
+        terminateProcess
+        (withTimeout timeout . waitForProcess)
+      exited <- getCurrentTime
+      rawOutput <- BL.readFile path
+      let
+        encoded = encode CheckResult
+          { command = cmdspec
+          , output = TL.decodeUtf8With TE.lenientDecode rawOutput
+          , status = case rawStatus of
+            Nothing -> UNKNOWN
+            Just ExitSuccess -> OK
+            Just ExitFailure {} -> CRITICAL
+          , duration = diffUTCTime exited executed
+          , ..
+          }
+      if dryRun
+        then BL8.putStrLn encoded
+        else case endpoint of
+          ClientSocketInput port -> sendToClientSocketInput port encoded
+          SensuServer urls -> sendToSensuServer urls encoded
+      case rawStatus of
+        Just ExitSuccess -> exitSuccess
+        Nothing -> do
+          hPutStrLn stderr $ showCmdSpec cmdspec ++ " timed out"
+          exitFailure
+        Just ExitFailure {} -> exitFailure
 
 sendToClientSocketInput
   :: PortNumber -- ^ Listening port of Sensu client socket
@@ -140,16 +148,18 @@ withTimeout time io = case time of
   Just n -> Timeout.timeout (round $ n * 10^(6 :: Int))  io
   Nothing -> Just <$> io
 
-data Options = Options
-  { name :: T.Text
-  , cmdspec :: CmdSpec
-  , source :: Maybe T.Text
-  , ttl :: Maybe NominalDiffTime
-  , timeout :: Maybe NominalDiffTime
-  , handlers :: [T.Text]
-  , endpoint :: Endpoint
-  , dryRun :: Bool
-  }
+data Options
+  = ShowVersion
+  | RunOptions
+    { name :: T.Text
+    , cmdspec :: CmdSpec
+    , source :: Maybe T.Text
+    , ttl :: Maybe NominalDiffTime
+    , timeout :: Maybe NominalDiffTime
+    , handlers :: [T.Text]
+    , endpoint :: Endpoint
+    , dryRun :: Bool
+    }
 
 data Endpoint
   = ClientSocketInput PortNumber
@@ -162,46 +172,50 @@ data Endpoint
   -- client HTTP sockets listen on 3031.
 
 options :: O.Parser Options
-options = do
-  name <- textOption $ mconcat
-    [ O.short 'n'
-    , O.long "name"
-    , O.metavar "NAME"
-    , O.help "The name of the check"
-    ]
-  source <- O.optional $ textOption $ mconcat
-    [ O.long "source"
-    , O.metavar "SOURCE"
-    , O.help $ unlines
-      [ "The check source, used to create a JIT Sensu client for an"
-      , "external resource" ]
-    ]
-  ttl <- durationOption $ mconcat
-    [ O.long "ttl"
-    , O.metavar "SECONDS"
-    , O.help "The time to live in seconds until check results are considered stale"
-    ]
-  timeout <- durationOption $ mconcat
-    [ O.long "timeout"
-    , O.metavar "SECONDS"
-    , O.help "The check executaion duration timeout in seconds"
-    ]
-  handlers <- O.some $ textOption $ mconcat
-    [ O.long "handler"
-    , O.metavar "HANDLER"
-    , O.help "Sensu event handler(s) to use for events created by the check"
-    ]
-  endpoint <- asum
-    [ ClientSocketInput <$> portOption
-    , SensuServer . NE.fromList <$> O.some serverOption
-    ]
-  dryRun <- O.switch $ mconcat
-    [ O.long "dry-run"
-    , O.long "dry"
-    ]
-  cmdspec <- cmdSpecOption
-  return Options {..}
+options = asum
+  [ runOptions
+  , ShowVersion <$ O.switch (O.long "version" <> O.short 'v')
+  ]
   where
+    runOptions = do
+      name <- textOption $ mconcat
+        [ O.short 'n'
+        , O.long "name"
+        , O.metavar "NAME"
+        , O.help "The name of the check"
+        ]
+      source <- O.optional $ textOption $ mconcat
+        [ O.long "source"
+        , O.metavar "SOURCE"
+        , O.help $ unlines
+          [ "The check source, used to create a JIT Sensu client for an"
+          , "external resource" ]
+        ]
+      ttl <- durationOption $ mconcat
+        [ O.long "ttl"
+        , O.metavar "SECONDS"
+        , O.help "The time to live in seconds until check results are considered stale"
+        ]
+      timeout <- durationOption $ mconcat
+        [ O.long "timeout"
+        , O.metavar "SECONDS"
+        , O.help "The check executaion duration timeout in seconds"
+        ]
+      handlers <- O.some $ textOption $ mconcat
+        [ O.long "handler"
+        , O.metavar "HANDLER"
+        , O.help "Sensu event handler(s) to use for events created by the check"
+        ]
+      endpoint <- asum
+        [ ClientSocketInput <$> portOption
+        , SensuServer . NE.fromList <$> O.some serverOption
+        ]
+      dryRun <- O.switch $ mconcat
+        [ O.long "dry-run"
+        , O.long "dry"
+        ]
+      cmdspec <- cmdSpecOption
+      return RunOptions {..}
     textOption m = T.pack <$> O.strOption m
     durationOption m =
       fmap (realToFrac @Double) <$> O.optional (O.option O.auto m)

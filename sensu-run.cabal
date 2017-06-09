@@ -1,5 +1,5 @@
 name: sensu-run
-version: 0.1.0
+version: 0.1.1
 synopsis: A tool to send command execution results to Sensu
 description:
   @sensu-run@ is a command line tool to send command execution results to Sensu
@@ -13,7 +13,9 @@ homepage: https://github.com/maoe/sensu-run#readme
 bug-reports: https://github.com/maoe/sensu-run/issues
 category: System
 build-type: Simple
-extra-source-files: CHANGELOG.md
+extra-source-files:
+  CHANGELOG.md
+  README.md
 cabal-version: >= 1.10
 tested-with: GHC == 8.0.2
 

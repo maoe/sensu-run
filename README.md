@@ -3,7 +3,7 @@
 [![Hackage-Deps](https://img.shields.io/hackage-deps/v/sensu-run.svg)](http://packdeps.haskellers.com/feed?needle=sensu-run)
 [![Stackage Nightly](http://stackage.org/package/sensu-run/badge/nightly)](http://stackage.org/nightly/package/sensu-run)
 [![Build Status](https://travis-ci.org/maoe/sensu-run.svg?branch=master)](https://travis-ci.org/maoe/sensu-run)
-[![Build status](https://ci.appveyor.com/api/projects/status/k9594kkn4tncotqt?svg=true)](https://ci.appveyor.com/project/maoe/sensu-run)
+[![Build status](https://ci.appveyor.com/api/projects/status/k9594kkn4tncotqt/branch/master?svg=true)](https://ci.appveyor.com/project/maoe/sensu-run/branch/master)
 
 `sensu-run` runs a command and send its result to Sensu server using the [client socket input](https://sensuapp.org/docs/latest/reference/clients.html#client-socket-input) or via the Sensu API. It is useful to monitor cron jobs for example.
 
@@ -11,18 +11,19 @@
 
 Install [stack](https://docs.haskellstack.org/en/stable/README/).
 
-```
+```sh
 stack install --resolver=nightly sensu-run
 ```
 will install the `sensu-run` command in `~/.local/bin`.
 
 ## Usage
 
-```
+```console
 % sensu-run --help
-Usage: sensu-run (-n|--name NAME) [--source SOURCE] [--ttl SECONDS]
-                 [--timeout SECONDS] --handler HANDLER ([--port PORT] |
-                 [--server URL]) [--dry|--dry-run] [-s|--shell] COMMAND
+Usage: sensu-run ([-n|--name NAME] [--source SOURCE] [--ttl SECONDS]
+                 [--timeout SECONDS] [--handler HANDLER] ([--port PORT] |
+                 [--server URL]) [--dry|--dry-run] [-s|--shell] [COMMAND] |
+                 [-v|--version])
 
 Available options:
   -h,--help                Show this help text
@@ -42,16 +43,19 @@ Available options:
 
 `--dry-run` option is useful to check the JSON output:
 
-```
-% sensu-run --name check-true --handler foo --dry-run -- du -s $HOME/src | jq .
+```console
+% sensu-run --name check-home-src-size --handler foo --dry-run -- du -s $HOME/src | jq .
 {
-  "name": "check-true",
-  "command": "du -s /Users/maoe/src",
-  "issued": 1483426629,
-  "executed": 1483426629,
-  "duration": 45,
+  "name": "check-home-src-size",
+  "command": "du -s /home/maoe/src",
+  "issued": 1496966954,
+  "executed": 1496966954,
+  "duration": 1.235584,
   "status": 0,
-  "output": "52454088\t/Users/maoe/src\n"
+  "output": "44567740\t/home/maoe/src\n",
+  "handlers": [
+    "foo"
+  ]
 }
 ```
 
@@ -69,6 +73,6 @@ Without the `--dry-run` option, `sensu-run` sends the output to localhost:PORT, 
 
 `sensu-run` supports posting check results via Sensu API as well. Use `--server` option to specify Sensu server addresses. If multiple servers are specified, `sensu-run` tries them one by one until it succeeds.
 
-```
+```sh
 sensu-run --name check-true --handler foo --server sensu1.example.com --server sensu2.example.com --dry-run -- du -s $HOME/src
 ```
