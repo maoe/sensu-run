@@ -16,8 +16,8 @@ on_success:
     {
       cp "$(./stack.exe path --local-install-root)/bin/sensu-run.exe" sensu-run.exe
       7z a sensu-run.zip sensu-run.exe
-      stack --resolver nightly install github-release
-      stack exec -- github-release.exe upload --token $env:GITHUB_TOKEN --owner maoe --repo sensu-run --tag $env:APPVEYOR_REPO_TAG_NAME --file sensu-run.zip --name sensu-run-$env:APPVEYOR_REPO_TAG_NAME-windows.zip
+      stack.exe --resolver nightly install github-release
+      stack.exe exec github-release.exe -- upload --token $env:GITHUB_TOKEN --owner maoe --repo sensu-run --tag $env:APPVEYOR_REPO_TAG_NAME --file sensu-run.zip --name sensu-run-$env:APPVEYOR_REPO_TAG_NAME-windows.zip
     }
 platform: x64
 test_script:
