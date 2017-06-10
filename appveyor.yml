@@ -14,9 +14,10 @@ on_success:
 - ps: |
     if ($env:APPVEYOR_REPO_TAG_NAME)
     {
-      cp "$(./stack.exe path --local-install-root)/bin/github-release.exe" github-release.exe
-      7z a github-release.zip github-release.exe
-      ./github-release.exe upload --token $env:GITHUB_TOKEN --owner tfausak --repo github-release --tag $env:APPVEYOR_REPO_TAG_NAME --file github-release.zip --name github-release-$env:APPVEYOR_REPO_TAG_NAME-windows.zip
+      cp "$(./stack.exe path --local-install-root)/bin/sensu-run.exe" sensu-run.exe
+      7z a sensu-run.zip sensu-run.exe
+      stack --resolver nightly install github-release
+      stack exec -- github-release.exe upload --token $env:GITHUB_TOKEN --owner maoe --repo sensu-run --tag $env:APPVEYOR_REPO_TAG_NAME --file sensu-run.zip --name sensu-run-$env:APPVEYOR_REPO_TAG_NAME-windows.zip
     }
 platform: x64
 test_script:
