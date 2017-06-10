@@ -14,9 +14,10 @@ after_success:
   if test "$TRAVIS_TAG" -a "$GITHUB_TOKEN"
   then
     gzip --best --to-stdout "$(stack path --local-install-root)/bin/sensu-run" > sensu-run.gz
-    stack exec -- sensu-run upload \
+    stack --resolver nightly install github-release
+    stack exec -- github-release upload \
       --token "$GITHUB_TOKEN" \
-      --owner tfausak \
+      --owner maoe \
       --repo sensu-run \
       --tag "$TRAVIS_TAG" \
       --file sensu-run.gz \
@@ -40,8 +41,8 @@ cache:
 env:
   global:
   - HACKAGE_USERNAME=MitsutoshiAoe
-  - secure: Lv2XqQhaXoWCFrbv+L8Zr4uqDXky2B1qL3MFzG4SqI8qZ3d+OOHtY61/P/x/CUtjtHETKaWNKwKAtXJosc/mv7DK+XUcJr/FVuX/thD94B+2vqy3gEWR9SQxZjocwG5TtpphlZD4hKFt68Ulz2cNyXJ0ddnUmJgVOgv7MIIVLGik7CRpSL1THlF7r7gh3/Ipsa8giG9cYyI1Ha3TYj1dOrmMy1nVbOleDgyawiR4YDHRgSXC/4832OLlObO3GF0VopqW0Q6KkG59ascE37+7yBCGsISlGsp4imUFF1VE08KBBalv3X0IymiTHzurobJJbJEBT2+qBR7LfcWy6dpYaUBJhj1kCn/CYkqjaH5Ha8y9bG7gO7xPxM205xaaxhGj0rr/WLbVoFXEz0X7QGYDchyGkAVN/NJfdX7q85qZqgobI9rO0Myr1JZAk7vsCWx4m8QN384owZkanUcdP6efKdsjSdR8V3mfoSNhSPAi0mNhYDtxRzopXYY+O+1PFcbZJmn7XwteNfwxKP0hu0XjKoE0+lfz40WalXGLrFHXrON73tON3AZ1NPYpyxsXOaxperLJC7piECWqLp5b6f7xC7CryjcMwBzv+NEdHRSYdUlmfZTVH7G8VCCGncKkE+RGOjf/t1ETW/hVBnQ7MYInaWTz7MWhBuLVjABT3j8mtJU=
-  - secure: lbJhnaVHbt4iSGjOXlWU6Wg7TBMT3FidLSbWb9PQAy3hWrtaAySYk1YijSo5QTEigFZvmrkJ7akx2upKS7KwyCybfIF+HSDJ+QEkov/xs1ZxWt6+ZCK1wj9razAe08RaxI5J3nac/18d68akAPwqnZgM2TbifgPPuziDg1ghLmTmXOaiEJa75+md6q6DiEG/H26cJrbyGSXPDLCwyO78b6ymU+mJgILn6LUO5hp2jLC0aPaoA3/SJ7EBtDmVjYKjSCoeivl2E5hpS0TWd8+yMpkGpxnYLxqsy8AP1pTToQOWdPVhp2LtMiknYUjzHIt0LgndXrRYfEKIgrZvxztYFU8Rxj0UWeJkuXknbppgiM4OJH9iHBDbtoUn8tvGwBvcqVgtimY+FCqsv3TgebJGt6oYm5bl+x4AAWkksv3wCx6EUJRWeOfiuT4udp4kRAZzJt8hIDTtWtv3sdxpxCa7VCSKruPkmDrXNPcDajPsH/HRi5IOvyR7atY7+YFKjN2++LdE+q8rT25UyZuHUekQKe9fsIsBL/9ToZzsiVIt/kNSBzJ4kQm7kqQkn7t4pp7R1N8hMrB1h3O0fHC5ATgY4OUuuqWd4FBFNiVDda4X1mNBvEjdnX51qv0NM4aCBXhi3P3voox7KZil1uz9qwN+sqWgrl0B7xAg35FQc+ScfPo=
+  - secure: BTNPHX/DVtN/UgvT/8x7WaO+RMYo5CnvZN3a+3wP9+AJYn/+Lyg9tmhNk4EPzf+Y56qWyuBPNZEXWs3rYN74y1Ekt2M+YjOFZAPCi5GVGFS+TyCNWnKk1CsFfkFSMq0jhDXwocYxgfTu+eduCdfP+5WkV7VbUmZgiEzTJK5x6FdndqJlAbTLJMy17aQfnVvAg+1FO4cN4j2rroGqi06bCLo3WwkJNlIy5xE63aEQXkJ7JXTEKQX7JpLLxXDTFa93fIMeB7Ef5d7PexTgmhqySN0W/z5j4MvDxsglvKgZgEen14wyUU+XMrn6c+FfF34HxZaQogk7qnFcJfPuhimeWGBgZoLiEcW5zhg5oGkN9bCiIymG2kOdZU1cRB8ZvoTraIoxzpmqINEGobsU+2oB6uSZI5FYLPR7ElXFbJJvhs5d/Vb0NhG1V5X1ukAv/uAwKZm1F7cNX6rqF6deJihexujJLQ/0Ht3fxKRkT3Rl5y1klfScmaXpk4GPpYiY+dwSfkjnN3UDUqQPHZRg7OIU9EBodm+uhfhWLBxvo0t7btfdypwa+1BPShm1my4eNOFftzi/ilz11YemdWT0r6q3hIujRiq9hOwKtOzagbj7uZ28VnqxkoHxKVvOpxLDcKP+ouZidLsTYpa2I5Z8e8qo+epvqkMlvSGJPOU1mL/mdsA=
+  - secure: j+fxObRQgwgL102ntahNRzLHxD7ppnPFObpJzc++yFv5OqP7FydT6z1D9EwqAyjbK1QH+p80fhauyKYh8tnHbBqkNpxHgh2Z4uPCNzRir0A5NkgPWr6WlQpOOD9qM+2Y3+IMdJ1OMz6AJgY0iGbcUVNSCrCEBruIJFyU5yRAq8fQnBxOkNo7lUeEXypqmvE92QWs5cWJtga+Qvy+EA1E6/sOh9tM8EGIqgOyVgFjnXBdPZqppgsGxuurD4X7LCXOi4wxfRAaNhR03OFDvNphtazSzSUk9fJelDD+XKZyiHqX/uaB61WxNq50chbmcN/9B0po3GL7Cw0LXOAaEm9IEkWJdGLVR7OfswoeHXq3JhuNeZPCGSzrzNq3/GceDT3FNMaIHb49Bu6hKj7sYjZMwjSYoJrG4itNn4ZHw5zSjTuU6AVKy6J52LS5ulHXr46FjStYv82vqyZn7aJYwrbkOBIzSLf2DNLD4ZolQc+AeThi0Lvem/oRkMCoJdmix41aRprg/wariZVoa2piCsV1Z7+97UcS4OHip/rXPmvejGtZ9jYm0jebRddb4qdZ2jaZfvcXK38AqdmZxJ5vAwRXg2hUhWP2mm8XJj8Wv8JufMnzJaH9mrDi80uarWZsf/ZvzxcngwALAbtuzy24pQaV2oiojVs4lgJMLQtqxEhAXHw=
 language: c
 os:
 - linux
