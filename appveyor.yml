@@ -1,17 +1,25 @@
-build: off
-
-before_test:
-- set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
-- curl -sS -ostack.zip -L --insecure http://www.stackage.org/stack/windows-i386
-- 7z x stack.zip stack.exe
-
-clone_folder: "c:\\stack"
+build_script:
+- stack.exe setup
+- stack.exe --no-terminal build --only-dependencies
+cache:
+- c:\s
 environment:
-  global:
-    STACK_ROOT: "c:\\sr"
-
+  GITHUB_TOKEN:
+    secure: lPpnI4gKiulwfHgMDC1SU3O4y5q/ggnZUfUPaDiq65SpGMW2MJX/BWH6aDeL2qLM
+  STACK_ROOT: c:\s
+install:
+- ps: curl -OutFile stack.zip -Uri https://github.com/commercialhaskell/stack/releases/download/v1.2.0/stack-1.2.0-windows-x86_64.zip
+- 7z x stack.zip stack.exe
+on_success:
+- ps: |
+    if ($env:APPVEYOR_REPO_TAG_NAME)
+    {
+      cp "$(./stack.exe path --local-install-root)/bin/github-release.exe" github-release.exe
+      7z a github-release.zip github-release.exe
+      ./github-release.exe upload --token $env:GITHUB_TOKEN --owner tfausak --repo github-release --tag $env:APPVEYOR_REPO_TAG_NAME --file github-release.zip --name github-release-$env:APPVEYOR_REPO_TAG_NAME-windows.zip
+    }
+platform: x64
 test_script:
-- stack setup > nul
-# The ugly echo "" hack is to avoid complaints about 0 being an invalid file
-# descriptor
-- echo "" | stack --no-terminal test
+- stack.exe --no-terminal build --pedantic
+- stack.exe sdist
+version: '{build}'
