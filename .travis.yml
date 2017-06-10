@@ -15,7 +15,7 @@ after_success:
   then
     gzip --best --to-stdout "$(stack path --local-install-root)/bin/sensu-run" > sensu-run.gz
     stack --resolver nightly install github-release
-    stack exec -- github-release upload \
+    stack exec github-release -- upload \
       --token "$GITHUB_TOKEN" \
       --owner maoe \
       --repo sensu-run \

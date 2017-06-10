@@ -1,6 +1,6 @@
 # Revision history for sensu-run
 
-## 0.1.1.2 -- 2017-06-11
+## 0.1.1.3 -- 2017-06-11
 
 * Relax upper version bound for optparse-applicative
 * Binary releases
