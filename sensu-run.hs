@@ -43,7 +43,7 @@ import qualified Network.Socket.ByteString.Lazy as Socket
 import qualified Network.Wreq as W
 import qualified Options.Applicative as O
 
-import System.Process.Kill (killProcess)
+import System.Process.Kill (killProcessTree)
 import qualified Paths_sensu_run as Paths
 
 main :: IO ()
@@ -60,7 +60,7 @@ main = do
         (startProcess cmdspec hdl)
         (\ph -> do
           terminateProcess ph
-          killProcess ph
+          killProcessTree ph
           waitForProcess ph)
         (withTimeout timeout . waitForProcess)
       exited <- getCurrentTime
@@ -138,7 +138,7 @@ startProcess cmdspec hdl = do
     , std_out = UseHandle hdl
     , std_err = UseHandle hdl
     , close_fds = False
-    , create_group = False
+    , create_group = True -- necessary to not kill sensu-run itself
     , delegate_ctlc = False
     , detach_console = False
     , create_new_console = False

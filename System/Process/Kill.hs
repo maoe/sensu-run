@@ -1,14 +1,16 @@
 {-# LANGUAGE CPP #-}
-module System.Process.Kill (killProcess) where
+module System.Process.Kill (killProcessTree) where
 import System.Process
 
 #if !defined(WINDOWS)
 import System.Process.Internals
 import qualified System.Posix.Signals as Sig
+import qualified System.Posix.Process as Proc
 #endif
 
-killProcess :: ProcessHandle -> IO ()
-killProcess ph =
+-- | Kill all processes in the same process group as the specified process.
+killProcessTree :: ProcessHandle -> IO ()
+killProcessTree ph =
 #if defined(WINDOWS)
   -- terminateProcess should kill the process and its children.
   terminateProcess ph
@@ -20,5 +22,7 @@ killProcess ph =
     OpenExtHandle pid _ _ -> sendKillSignal pid
 #endif
   where
-    sendKillSignal = Sig.signalProcess Sig.killProcess
+    sendKillSignal pid = do
+      pgid <- Proc.getProcessGroupIDOf pid
+      Sig.signalProcessGroup Sig.killProcess pgid
 #endif
