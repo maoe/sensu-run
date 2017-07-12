@@ -31,7 +31,7 @@ executable sensu-run
     , lens >= 4.15 && < 4.16
     , network >= 2.2.3 && < 2.7
     , optparse-applicative >= 0.12 && < 0.15
-    , process >= 1.4 && < 1.7
+    , process >= 1.5 && < 1.7
     , temporary >= 1.1 && < 1.3
     , text >= 1.2.2 && < 1.3
     , time >= 1.5.0.1 && < 1.9

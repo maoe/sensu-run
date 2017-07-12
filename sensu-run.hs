@@ -140,6 +140,7 @@ startProcess cmdspec hdl = do
     , new_session = False
     , child_group = Nothing
     , child_user = Nothing
+    , use_process_jobs = True
     }
   return ph
 
