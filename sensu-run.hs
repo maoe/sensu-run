@@ -1,4 +1,5 @@
 {-# LANGUAGE ApplicativeDo #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
@@ -140,7 +141,9 @@ startProcess cmdspec hdl = do
     , new_session = False
     , child_group = Nothing
     , child_user = Nothing
+#if MIN_VERSION_process(1, 5, 0)
     , use_process_jobs = True
+#endif
     }
   return ph
 
