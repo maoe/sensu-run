@@ -43,6 +43,7 @@ import qualified Network.Socket.ByteString.Lazy as Socket
 import qualified Network.Wreq as W
 import qualified Options.Applicative as O
 
+import System.Process.Kill (killProcess)
 import qualified Paths_sensu_run as Paths
 
 main :: IO ()
@@ -57,7 +58,10 @@ main = do
       executed <- getCurrentTime
       rawStatus <- bracket
         (startProcess cmdspec hdl)
-        terminateProcess
+        (\ph -> do
+          terminateProcess ph
+          killProcess ph
+          waitForProcess ph)
         (withTimeout timeout . waitForProcess)
       exited <- getCurrentTime
       rawOutput <- BL.readFile path
