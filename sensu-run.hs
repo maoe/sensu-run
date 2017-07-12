@@ -1,4 +1,5 @@
 {-# LANGUAGE ApplicativeDo #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
@@ -42,6 +43,7 @@ import qualified Network.Socket.ByteString.Lazy as Socket
 import qualified Network.Wreq as W
 import qualified Options.Applicative as O
 
+import System.Process.Kill (killProcessTree)
 import qualified Paths_sensu_run as Paths
 
 main :: IO ()
@@ -56,7 +58,10 @@ main = do
       executed <- getCurrentTime
       rawStatus <- bracket
         (startProcess cmdspec hdl)
-        terminateProcess
+        (\ph -> do
+          terminateProcess ph
+          killProcessTree ph
+          waitForProcess ph)
         (withTimeout timeout . waitForProcess)
       exited <- getCurrentTime
       rawOutput <- BL.readFile path
@@ -133,20 +138,25 @@ startProcess cmdspec hdl = do
     , std_out = UseHandle hdl
     , std_err = UseHandle hdl
     , close_fds = False
-    , create_group = False
+    , create_group = True -- necessary to not kill sensu-run itself
     , delegate_ctlc = False
     , detach_console = False
     , create_new_console = False
     , new_session = False
     , child_group = Nothing
     , child_user = Nothing
+#if MIN_VERSION_process(1, 5, 0)
+    , use_process_jobs = True
+#endif
     }
   return ph
 
 withTimeout :: Maybe NominalDiffTime -> IO a -> IO (Maybe a)
 withTimeout time io = case time of
-  Just n -> Timeout.timeout (round $ n * 10^(6 :: Int))  io
+  Just n -> Timeout.timeout (seconds n) io
   Nothing -> Just <$> io
+  where
+    seconds n = round $ n * 10 ^ (6 :: Int)
 
 data Options
   = ShowVersion
