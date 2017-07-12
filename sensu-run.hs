@@ -146,8 +146,10 @@ startProcess cmdspec hdl = do
 
 withTimeout :: Maybe NominalDiffTime -> IO a -> IO (Maybe a)
 withTimeout time io = case time of
-  Just n -> Timeout.timeout (round $ n * 10^(6 :: Int))  io
+  Just n -> Timeout.timeout (seconds n) io
   Nothing -> Just <$> io
+  where
+    seconds n = round $ n * 10 ^ (6 :: Int)
 
 data Options
   = ShowVersion
