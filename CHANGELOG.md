@@ -1,5 +1,10 @@
 # Revision history for sensu-run
 
+## 0.2.0 -- 2017-07-12
+
+* Relax upper version bound for base
+* Kill child process(es) when timeout occurs
+
 ## 0.1.1.3 -- 2017-06-11
 
 * Relax upper version bound for optparse-applicative
