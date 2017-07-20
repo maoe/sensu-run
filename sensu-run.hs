@@ -32,6 +32,7 @@ import Network.Socket
 import System.FilePath ((</>))
 import System.IO.Temp
 import System.Process
+import System.PosixCompat.User (getEffectiveUserName)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.Char8 as BL8
 import qualified Data.Text as T
@@ -65,6 +66,7 @@ main = do
         (withTimeout timeout . waitForProcess)
       exited <- getCurrentTime
       rawOutput <- BL.readFile path
+      user <- T.pack <$> getEffectiveUserName
       let
         encoded = encode CheckResult
           { command = cmdspec
@@ -265,6 +267,7 @@ data CheckResult = CheckResult
   , duration :: NominalDiffTime
   , output :: TL.Text
   , handlers :: [T.Text]
+  , user :: T.Text
   }
 
 pattern OK :: ExitCode
@@ -294,6 +297,7 @@ checkResultKeyValue CheckResult {..} =
     , "status" .= statusToInt status
     , "output" .= output
     , "handlers" .= handlers
+    , "user" .= user
     ]
     where
       addOptional key val ps = maybe ps (\val' -> key .= val' : ps) val
