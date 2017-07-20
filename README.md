@@ -48,14 +48,15 @@ Available options:
 {
   "name": "check-home-src-size",
   "command": "du -s /home/maoe/src",
-  "issued": 1496966954,
-  "executed": 1496966954,
-  "duration": 1.235584,
+  "issued": 1500526383,
+  "executed": 1500526383,
+  "duration": 1.168139,
   "status": 0,
-  "output": "44567740\t/home/maoe/src\n",
+  "output": "55186828\t/home/maoe/src\n",
   "handlers": [
     "foo"
-  ]
+  ],
+  "user": "maoe"
 }
 ```
 
