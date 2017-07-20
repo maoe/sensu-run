@@ -2,27 +2,6 @@ addons:
   apt:
     packages:
     - libgmp-dev
-after_success:
-- |
-  if test "$TRAVIS_TAG" -a "$TRAVIS_OS_NAME" = linux
-  then
-    mkdir -p "$HOME/.stack/upload"
-    echo "{ \"username\": \"$HACKAGE_USERNAME\", \"password\": \"$HACKAGE_PASSWORD\" }" > "$HOME/.stack/upload/credentials.json"
-    stack upload --no-signature .
-  fi
-- |
-  if test "$TRAVIS_TAG" -a "$GITHUB_TOKEN"
-  then
-    gzip --best --to-stdout "$(stack path --local-install-root)/bin/sensu-run" > sensu-run.gz
-    stack --resolver nightly install github-release
-    stack exec github-release -- upload \
-      --token "$GITHUB_TOKEN" \
-      --owner maoe \
-      --repo sensu-run \
-      --tag "$TRAVIS_TAG" \
-      --file sensu-run.gz \
-      --name "sensu-run-$TRAVIS_TAG-$TRAVIS_OS_NAME.gz"
-  fi
 before_install:
 - |
   if test ! -f "$HOME/.local/bin/stack"
@@ -38,11 +17,6 @@ cache:
   directories:
   - "$HOME/.local/bin"
   - "$HOME/.stack"
-env:
-  global:
-  - HACKAGE_USERNAME=MitsutoshiAoe
-  - secure: BTNPHX/DVtN/UgvT/8x7WaO+RMYo5CnvZN3a+3wP9+AJYn/+Lyg9tmhNk4EPzf+Y56qWyuBPNZEXWs3rYN74y1Ekt2M+YjOFZAPCi5GVGFS+TyCNWnKk1CsFfkFSMq0jhDXwocYxgfTu+eduCdfP+5WkV7VbUmZgiEzTJK5x6FdndqJlAbTLJMy17aQfnVvAg+1FO4cN4j2rroGqi06bCLo3WwkJNlIy5xE63aEQXkJ7JXTEKQX7JpLLxXDTFa93fIMeB7Ef5d7PexTgmhqySN0W/z5j4MvDxsglvKgZgEen14wyUU+XMrn6c+FfF34HxZaQogk7qnFcJfPuhimeWGBgZoLiEcW5zhg5oGkN9bCiIymG2kOdZU1cRB8ZvoTraIoxzpmqINEGobsU+2oB6uSZI5FYLPR7ElXFbJJvhs5d/Vb0NhG1V5X1ukAv/uAwKZm1F7cNX6rqF6deJihexujJLQ/0Ht3fxKRkT3Rl5y1klfScmaXpk4GPpYiY+dwSfkjnN3UDUqQPHZRg7OIU9EBodm+uhfhWLBxvo0t7btfdypwa+1BPShm1my4eNOFftzi/ilz11YemdWT0r6q3hIujRiq9hOwKtOzagbj7uZ28VnqxkoHxKVvOpxLDcKP+ouZidLsTYpa2I5Z8e8qo+epvqkMlvSGJPOU1mL/mdsA=
-  - secure: j+fxObRQgwgL102ntahNRzLHxD7ppnPFObpJzc++yFv5OqP7FydT6z1D9EwqAyjbK1QH+p80fhauyKYh8tnHbBqkNpxHgh2Z4uPCNzRir0A5NkgPWr6WlQpOOD9qM+2Y3+IMdJ1OMz6AJgY0iGbcUVNSCrCEBruIJFyU5yRAq8fQnBxOkNo7lUeEXypqmvE92QWs5cWJtga+Qvy+EA1E6/sOh9tM8EGIqgOyVgFjnXBdPZqppgsGxuurD4X7LCXOi4wxfRAaNhR03OFDvNphtazSzSUk9fJelDD+XKZyiHqX/uaB61WxNq50chbmcN/9B0po3GL7Cw0LXOAaEm9IEkWJdGLVR7OfswoeHXq3JhuNeZPCGSzrzNq3/GceDT3FNMaIHb49Bu6hKj7sYjZMwjSYoJrG4itNn4ZHw5zSjTuU6AVKy6J52LS5ulHXr46FjStYv82vqyZn7aJYwrbkOBIzSLf2DNLD4ZolQc+AeThi0Lvem/oRkMCoJdmix41aRprg/wariZVoa2piCsV1Z7+97UcS4OHip/rXPmvejGtZ9jYm0jebRddb4qdZ2jaZfvcXK38AqdmZxJ5vAwRXg2hUhWP2mm8XJj8Wv8JufMnzJaH9mrDi80uarWZsf/ZvzxcngwALAbtuzy24pQaV2oiojVs4lgJMLQtqxEhAXHw=
 language: c
 os:
 - linux
