@@ -17,7 +17,9 @@ extra-source-files:
   CHANGELOG.md
   README.md
 cabal-version: >= 1.10
-tested-with: GHC == 8.0.2
+tested-with:
+  GHC == 8.0.2
+  GHC == 8.2.1
 
 executable sensu-run
   main-is: sensu-run.hs
