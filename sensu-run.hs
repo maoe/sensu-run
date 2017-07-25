@@ -57,24 +57,28 @@ main = do
       exitSuccess
     RunOptions {..} -> withSystemTempFile "sensu-run.XXX" $ \path hdl -> do
       executed <- getCurrentTime
-      rawStatus <- bracket
+      rawStatus <- try $ bracket
         (startProcess cmdspec hdl)
         (\ph -> do
           terminateProcess ph
           killProcessTree ph
           waitForProcess ph)
         (withTimeout timeout . waitForProcess)
+      hClose hdl
       exited <- getCurrentTime
       rawOutput <- BL.readFile path
       user <- T.pack <$> getEffectiveUserName
       let
         encoded = encode CheckResult
           { command = cmdspec
-          , output = TL.decodeUtf8With TE.lenientDecode rawOutput
+          , output = case rawStatus of
+            Left ioe -> TL.pack $ show (ioe :: IOException)
+            Right Nothing -> "timed out"
+            Right _ -> TL.decodeUtf8With TE.lenientDecode rawOutput
           , status = case rawStatus of
-            Nothing -> UNKNOWN
-            Just ExitSuccess -> OK
-            Just ExitFailure {} -> CRITICAL
+            Right (Just ExitSuccess) -> OK
+            Right (Just ExitFailure {}) -> CRITICAL
+            _ -> UNKNOWN
           , duration = diffUTCTime exited executed
           , ..
           }
@@ -84,11 +88,14 @@ main = do
           ClientSocketInput port -> sendToClientSocketInput port encoded
           SensuServer urls -> sendToSensuServer urls encoded
       case rawStatus of
-        Just ExitSuccess -> exitSuccess
-        Nothing -> do
+        Left ioe -> do
+          hPutStrLn stderr $ show ioe
+          exitFailure
+        Right (Just ExitSuccess) -> exitSuccess
+        Right Nothing -> do
           hPutStrLn stderr $ showCmdSpec cmdspec ++ " timed out"
           exitFailure
-        Just ExitFailure {} -> exitFailure
+        Right (Just ExitFailure {}) -> exitFailure
 
 sendToClientSocketInput
   :: PortNumber -- ^ Listening port of Sensu client socket
