@@ -1,5 +1,10 @@
 # Revision history for sensu-run
 
+## 0.3.0 -- 2017-07-25
+
+* Add user field to result JSON (#7)
+* Handle missing executable properly (#10)
+
 ## 0.2.0 -- 2017-07-12
 
 * Relax upper version bound for base
