@@ -1,26 +1,30 @@
-build_script:
-- stack.exe setup
-- stack.exe --no-terminal build --only-dependencies
+platform: x64
 cache:
 - c:\s
 environment:
-  GITHUB_TOKEN:
-    secure: lPpnI4gKiulwfHgMDC1SU3O4y5q/ggnZUfUPaDiq65SpGMW2MJX/BWH6aDeL2qLM
   STACK_ROOT: c:\s
+version: '{build}'
 install:
-- ps: curl -OutFile stack.zip -Uri https://github.com/commercialhaskell/stack/releases/download/v1.2.0/stack-1.2.0-windows-x86_64.zip
+- ps: curl -OutFile stack.zip -Uri https://github.com/commercialhaskell/stack/releases/download/v1.5.0/stack-1.5.0-windows-x86_64.zip
 - 7z x stack.zip stack.exe
-on_success:
-- ps: |
-    if ($env:APPVEYOR_REPO_TAG_NAME)
-    {
-      cp "$(./stack.exe path --local-install-root)/bin/sensu-run.exe" sensu-run.exe
-      7z a sensu-run.zip sensu-run.exe
-      ./stack.exe --resolver nightly install github-release
-      ./stack.exe exec github-release.exe -- upload --token $env:GITHUB_TOKEN --owner maoe --repo sensu-run --tag $env:APPVEYOR_REPO_TAG_NAME --file sensu-run.zip --name sensu-run-$env:APPVEYOR_REPO_TAG_NAME-windows.zip
-    }
-platform: x64
+build_script:
+- stack.exe setup
+- stack.exe --no-terminal build --only-dependencies
 test_script:
 - stack.exe --no-terminal build --pedantic
 - stack.exe sdist
-version: '{build}'
+after_test:
+- ps: |
+    cp "$(./stack.exe path --local-install-root)/bin/sensu-run.exe" sensu-run.exe
+    7z a sensu-run.windows.zip sensu-run.exe
+artifacts:
+- path: sensu-run.windows.zip
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: VfuGAeBDY+lUA7omIc8uMUNjvHwx34amMq34spLVP1nC0fR/ift6IGQCDguWipxF
+  artifact: sensu-run.windows.zip
+  release: $(appveyor_repo_tag_name)
+  draft: true
+  on:
+    appveyor_repo_tag: true
