@@ -61,7 +61,7 @@ Available options:
 ```
 
 Use the `--shell` option if you want to use shell functions:
-```
+```console
 % sensu-run --name check-home-src-size --handler foo --dry-run --shell -- "cd $HOME/src; du -s ." | jq .
 {
   "name": "check-home-src-size",
