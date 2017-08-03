@@ -38,6 +38,7 @@ import qualified Data.ByteString.Lazy.Char8 as BL8
 import qualified Data.Text as T
 import qualified Data.Text.Encoding.Error as TE
 import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Builder as TL
 import qualified Data.Text.Lazy.Encoding as TL
 import qualified Network.HTTP.Types.Status as HT
 import qualified Network.Socket.ByteString.Lazy as Socket
@@ -71,10 +72,13 @@ main = do
       let
         encoded = encode CheckResult
           { command = cmdspec
-          , output = case rawStatus of
-            Left ioe -> TL.pack $ show (ioe :: IOException)
-            Right Nothing -> "timed out"
-            Right _ -> TL.decodeUtf8With TE.lenientDecode rawOutput
+          , output = TL.toLazyText $ mconcat
+            [ TL.fromLazyText (TL.decodeUtf8With TE.lenientDecode rawOutput)
+            , TL.fromString $ case rawStatus of
+              Left ioe -> show (ioe :: IOException)
+              Right Nothing -> "sensu-run: timed out"
+              Right _ -> mempty
+            ]
           , status = case rawStatus of
             Right (Just ExitSuccess) -> OK
             Right (Just ExitFailure {}) -> CRITICAL
