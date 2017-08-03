@@ -9,9 +9,9 @@ install:
 - 7z x stack.zip stack.exe
 build_script:
 - stack.exe setup > nul
-- stack.exe --no-terminal build --only-dependencies
+- stack.exe --no-terminal build -j1 --only-dependencies
 test_script:
-- stack.exe --no-terminal build --pedantic
+- stack.exe --no-terminal build -j1 --pedantic
 - stack.exe sdist
 after_test:
 - ps: |
