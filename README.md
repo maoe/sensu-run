@@ -9,8 +9,13 @@
 
 ## Installation
 
-Install [stack](https://docs.haskellstack.org/en/stable/README/).
+Binary releases are available at [GitHub Releases](https://github.com/maoe/sensu-run/releases). Currently supported platforms for the binary releases are:
 
+* Ubuntu (64bit)
+* macOS
+* Windows (x64)
+
+You can also build it yourself using [stack](https://docs.haskellstack.org/en/stable/README/):
 ```sh
 stack install --resolver=nightly sensu-run
 ```
