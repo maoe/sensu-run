@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.4.0 -- 2017-08-03
+
+* Include command output in response even on timeout/failure (#14)
+
 ## 0.3.0 -- 2017-07-25
 
 * Add user field to result JSON (#7)
