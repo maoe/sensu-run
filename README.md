@@ -48,11 +48,29 @@ Available options:
 {
   "name": "check-home-src-size",
   "command": "du -s /home/maoe/src",
-  "issued": 1500526383,
-  "executed": 1500526383,
-  "duration": 1.168139,
+  "issued": 1501041549,
+  "executed": 1501041549,
+  "duration": 1.674895,
   "status": 0,
-  "output": "55186828\t/home/maoe/src\n",
+  "output": "55513524\t/home/maoe/src\n",
+  "handlers": [
+    "foo"
+  ],
+  "user": "maoe"
+}
+```
+
+Use the `--shell` option if you want to use shell functions:
+```console
+% sensu-run --name check-home-src-size --handler foo --dry-run --shell -- "cd $HOME/src; du -s ." | jq .
+{
+  "name": "check-home-src-size",
+  "command": "cd /home/maoe/src; du -s .",
+  "issued": 1501041568,
+  "executed": 1501041568,
+  "duration": 1.224157,
+  "status": 0,
+  "output": "55513524\t.\n",
   "handlers": [
     "foo"
   ],
