@@ -1,6 +1,6 @@
 platform: x64
 cache:
-- c:\s
+- c:\s -> appveyor.yml
 environment:
   STACK_ROOT: c:\s
 version: '{build}'
