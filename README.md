@@ -1,6 +1,7 @@
 # sensu-run
 [![Hackage](https://img.shields.io/hackage/v/sensu-run.svg)](http://hackage.haskell.org/package/sensu-run)
 [![Hackage-Deps](https://img.shields.io/hackage-deps/v/sensu-run.svg)](http://packdeps.haskellers.com/feed?needle=sensu-run)
+[![Stackage LTS](http://stackage.org/package/sensu-run/badge/lts)](http://stackage.org/lts/package/sensu-run)
 [![Stackage Nightly](http://stackage.org/package/sensu-run/badge/nightly)](http://stackage.org/nightly/package/sensu-run)
 [![Build Status](https://travis-ci.org/maoe/sensu-run.svg?branch=master)](https://travis-ci.org/maoe/sensu-run)
 [![Build status](https://ci.appveyor.com/api/projects/status/k9594kkn4tncotqt/branch/master?svg=true)](https://ci.appveyor.com/project/maoe/sensu-run/branch/master)
@@ -17,7 +18,7 @@ Binary releases are available at [GitHub Releases](https://github.com/maoe/sensu
 
 You can also build it yourself using [stack](https://docs.haskellstack.org/en/stable/README/):
 ```sh
-stack install --resolver=nightly sensu-run
+stack install sensu-run
 ```
 will install the `sensu-run` command in `~/.local/bin`.
 
