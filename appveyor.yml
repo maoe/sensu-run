@@ -8,7 +8,7 @@ install:
 - ps: curl -OutFile stack.zip -Uri https://github.com/commercialhaskell/stack/releases/download/v1.5.0/stack-1.5.0-windows-x86_64.zip
 - 7z x stack.zip stack.exe
 build_script:
-- stack.exe setup
+- stack.exe setup > nul
 - stack.exe --no-terminal build --only-dependencies
 test_script:
 - stack.exe --no-terminal build --pedantic
