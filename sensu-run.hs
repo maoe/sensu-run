@@ -74,6 +74,7 @@ main = do
           { command = cmdspec
           , output = TL.toLazyText $ mconcat
             [ TL.fromLazyText (TL.decodeUtf8With TE.lenientDecode rawOutput)
+            , "\n"
             , TL.fromString $ case rawStatus of
               Left ioe -> show (ioe :: IOException)
               Right Nothing -> "sensu-run: timed out"
