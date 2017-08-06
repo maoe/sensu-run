@@ -1,29 +1,37 @@
-platform: x64
+shallow_clone: true
+environment:
+  global:
+    STACK_ROOT: c:\s
+  matrix:
+  - PLATFORM: x64
+    MSYS: msys64
+    STACK_ARCH: x86_64
+  - PLATFORM: x86
+    MSYS: msys32
+    STACK_ARCH: i386
 cache:
 - c:\s -> appveyor.yml
-environment:
-  STACK_ROOT: c:\s
 version: '{build}'
 install:
-- ps: curl -OutFile stack.zip -Uri https://github.com/commercialhaskell/stack/releases/download/v1.5.0/stack-1.5.0-windows-x86_64.zip
+- curl -ostack.zip -LsS --insecure https://www.stackage.org/stack/windows-%STACK_ARCH%
 - 7z x stack.zip stack.exe
-build_script:
 - stack.exe setup > nul
 - stack.exe --no-terminal build -j1 --only-dependencies
-test_script:
+build_script:
 - stack.exe --no-terminal build -j1 --pedantic
+test_script:
 - stack.exe sdist
+- stack.exe exec -- sensu-run
 after_test:
-- ps: |
-    cp "$(./stack.exe path --local-install-root)/bin/sensu-run.exe" sensu-run.exe
-    7z a sensu-run.windows.zip sensu-run.exe
+- ps: cp "$(./stack.exe path --local-install-root)/bin/sensu-run.exe" sensu-run.exe
+- 7z a sensu-run.windows.%PLATFORM%.zip sensu-run.exe
 artifacts:
-- path: sensu-run.windows.zip
+- path: sensu-run.windows.%PLATFORM%.zip
 deploy:
 - provider: GitHub
   auth_token:
     secure: VfuGAeBDY+lUA7omIc8uMUNjvHwx34amMq34spLVP1nC0fR/ift6IGQCDguWipxF
-  artifact: sensu-run.windows.zip
+  artifact: sensu-run.windows.$(platform).zip
   release: $(appveyor_repo_tag_name)
   draft: true
   on:
