@@ -37,7 +37,6 @@ import System.Directory (removeFile)
 import System.FileLock
 import System.FilePath ((</>), (<.>))
 import System.IO.Temp
-import System.PosixCompat.User (getEffectiveUserName)
 import System.Process
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -59,6 +58,12 @@ import qualified Paths_sensu_run as Paths
 import Data.Aeson
 #if MIN_VERSION_aeson(1, 2, 2)
   hiding (Options)
+#endif
+
+#ifdef mingw32_HOST_OS
+import System.Win32.Info (getUserName)
+#else
+import System.Posix.User (getEffectiveUserName)
 #endif
 
 main :: IO ()
@@ -91,7 +96,12 @@ main = do
         hClose hdl
         exited <- getCurrentTime
         rawOutput <- BL.readFile path
-        user <- T.pack <$> getEffectiveUserName
+        user <- T.pack <$>
+#ifdef mingw32_HOST_OS
+          getUserName
+#else
+          getEffectiveUserName
+#endif
         let
           encoded = encode CheckResult
             { command = cmdspec
