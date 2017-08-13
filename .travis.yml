@@ -130,6 +130,8 @@ script:
 
   # build & run tests, build benchmarks
   - cabal new-build -w ${HC} ${TEST} ${BENCH} all
+  - cabal new-run -w ${HC} sensu-run
+  - cabal new-run -w ${HC} sensu-run -- --name check-test --handler test --dry-run -- echo test
 
   # cabal check
   - (cd sensu-run-* && cabal check)

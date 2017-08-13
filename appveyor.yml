@@ -20,8 +20,9 @@ install:
 build_script:
 - stack.exe --no-terminal build -j1 --pedantic
 test_script:
+- stack.exe exec sensu-run
+- stack.exe exec sensu-run -- --name check-test --handler test --dry-run -- echo test
 - stack.exe sdist
-- stack.exe exec -- sensu-run
 after_test:
 - ps: cp "$(./stack.exe path --local-install-root)/bin/sensu-run.exe" sensu-run.exe
 - 7z a sensu-run.windows.%PLATFORM%.zip sensu-run.exe
