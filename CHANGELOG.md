@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.4.0.1 -- 2017-10-26
+
+* Relax upper version bound for http-types
+
 ## 0.4.0 -- 2017-08-03
 
 * Include command output in response even on timeout/failure (#14)
