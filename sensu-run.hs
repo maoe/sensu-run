@@ -24,7 +24,6 @@ import qualified Data.Version as V
 import qualified System.Timeout as Timeout
 
 import Control.Lens hiding ((.=))
-import Data.Aeson
 import Data.Time
 import Data.Time.Clock.POSIX
 import Network.HTTP.Client (HttpException)
@@ -47,6 +46,11 @@ import qualified Options.Applicative as O
 
 import System.Process.Kill (killProcessTree)
 import qualified Paths_sensu_run as Paths
+
+import Data.Aeson
+#if MIN_VERSION_aeson(1, 2, 2)
+  hiding (Options)
+#endif
 
 main :: IO ()
 main = do
