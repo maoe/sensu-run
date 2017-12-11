@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.4.0.3 -- 2017-11-07
+
+* Relax upper version bound for http-types
+
 ## 0.4.0.2 -- 2017-11-07
 
 * Relax upper version bound for unix-compat
