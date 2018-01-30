@@ -1,5 +1,5 @@
 name: sensu-run
-version: 0.4.0.3
+version: 0.4.0.4
 synopsis: A tool to send command execution results to Sensu
 description:
   @sensu-run@ is a command line tool to send command execution results to Sensu
@@ -8,7 +8,7 @@ license: BSD3
 license-file: LICENSE
 author: Mitsutoshi Aoe
 maintainer: maoe@foldr.in
-copyright: Copyright (C) 2016-2017 Mitsutoshi Aoe
+copyright: Copyright (C) 2016-2018 Mitsutoshi Aoe
 homepage: https://github.com/maoe/sensu-run#readme
 bug-reports: https://github.com/maoe/sensu-run/issues
 category: System
