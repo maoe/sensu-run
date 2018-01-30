@@ -29,7 +29,7 @@ script:
 sudo: false
 before_deploy:
 - cp $HOME/.local/bin/sensu-run sensu-run.$TRAVIS_OS_NAME
-- gzip sensu-run.$TRAVIS_OS_NAME
+- gzip -f sensu-run.$TRAVIS_OS_NAME
 deploy:
 - provider: releases
   api_key:
