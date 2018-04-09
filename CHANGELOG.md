@@ -1,8 +1,12 @@
 # Revision history for sensu-run
 
+## 0.4.0.5 -- 2018-04-09
+
+* Relax upper version bounds for base and aeson
+
 ## 0.4.0.4 -- 2018-01-30
 
-* Relax upper version bound for http-types, lens and time
+* Relax upper version bounds for http-types, lens and time
 
 ## 0.4.0.3 -- 2017-11-07
 

@@ -22,6 +22,7 @@ import System.IO
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Version as V
 import qualified System.Timeout as Timeout
+import Prelude
 
 import Control.Lens hiding ((.=))
 import Data.Time
