@@ -10,11 +10,13 @@
 
 ## Installation
 
+NOTE: Currently sensu-run doesn't work on Windows. See [#16](https://github.com/maoe/sensu-run/issues/16).
+
 Binary releases are available at [GitHub Releases](https://github.com/maoe/sensu-run/releases). Currently supported platforms for the binary releases are:
 
 * Ubuntu (64bit)
 * macOS
-* Windows (x64)
+* Windows (x64, x86)
 
 You can also build it yourself using [stack](https://docs.haskellstack.org/en/stable/README/):
 ```sh
@@ -28,8 +30,8 @@ will install the `sensu-run` command in `~/.local/bin`.
 % sensu-run --help
 Usage: sensu-run ([-n|--name NAME] [--source SOURCE] [--ttl SECONDS]
                  [--timeout SECONDS] [--handler HANDLER] ([--port PORT] |
-                 [--server URL]) [--dry|--dry-run] [-s|--shell] [COMMAND] |
-                 [-v|--version])
+                 [--server URL]) [--redirect] [--dry|--dry-run] [-s|--shell]
+                 [COMMAND] | [-v|--version])
 
 Available options:
   -h,--help                Show this help text
@@ -44,6 +46,8 @@ Available options:
   --port PORT              Send results to the local sensu-client listening on
                            the specified port (default: 3030)
   --server URL             Send results to the specified Sensu server
+  --redirect               Redirect command output to sensu-run's output
+  --dry,--dry-run          Dump the JSON object which is supposed to be sent
   -s,--shell               Execute the command using the shell
 ```
 
