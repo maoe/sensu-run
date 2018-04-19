@@ -1,5 +1,5 @@
 name: sensu-run
-version: 0.4.0.5
+version: 0.5.0
 synopsis: A tool to send command execution results to Sensu
 description:
   @sensu-run@ is a command line tool to send command execution results to Sensu
@@ -26,16 +26,18 @@ executable sensu-run
   main-is: sensu-run.hs
   build-depends:
       aeson >= 0.11 && < 1.4
+    , async < 2.3
     , base >= 4.9 && < 4.12
     , bytestring >= 0.10 && < 0.11
     , filepath >= 1.4.1 && < 1.5
     , http-client >= 0.5.6 && < 0.6
+    , http-client-tls < 0.4
     , http-types >= 0.9.1 && < 0.13
     , lens >= 4.15 && < 4.17
     , network >= 2.2.3 && < 2.7
     , optparse-applicative >= 0.12 && < 0.15
     , process >= 1.4 && < 1.7
-    , temporary >= 1.1 && < 1.3
+    , temporary >= 1.1 && < 1.4
     , text >= 1.2.2 && < 1.3
     , time >= 1.5.0.1 && < 1.10
     , unix-compat < 0.6
@@ -47,6 +49,6 @@ executable sensu-run
   if os(windows)
     cpp-options: -DWINDOWS
   else
-    build-depends: unix
+    build-depends: unix < 2.8
   ghc-options: -Wall -threaded
   default-language: Haskell2010
