@@ -1,5 +1,13 @@
 # Revision history for sensu-run
 
+## 0.5.0 -- 2018-04-20
+
+* Add support for HTTPS (#18)
+* Do not append new line to the output when the command was successful
+* Add --redirect option (#12)
+* Relax upper version bound for temporary
+* Tighten upper version bound for unix
+
 ## 0.4.0.5 -- 2018-04-09
 
 * Relax upper version bounds for base and aeson
