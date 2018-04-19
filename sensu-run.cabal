@@ -47,6 +47,6 @@ executable sensu-run
   if os(windows)
     cpp-options: -DWINDOWS
   else
-    build-depends: unix
+    build-depends: unix < 2.8
   ghc-options: -Wall -threaded
   default-language: Haskell2010
