@@ -31,6 +31,7 @@ import Control.Lens hiding ((.=))
 import Data.Time
 import Data.Time.Clock.POSIX
 import Network.HTTP.Client (HttpException)
+import Network.HTTP.Client.TLS
 import Network.Socket
 import System.FilePath ((</>))
 import System.IO.Temp
@@ -150,8 +151,9 @@ sendToSensuServer urls payload =
         | HT.statusIsSuccessful status -> return ()
         | otherwise ->
           fail $ "sendToSensuServer: unexpected status " ++ show status
-    params = W.defaults &
-      W.header "Content-Type" .~ ["application/json"]
+    params = W.defaults
+      & W.header "Content-Type" .~ ["application/json"]
+      & W.manager .~ Left tlsManagerSettings
     handleError reason = do
       hPutStrLn stderr $
         "Failed to POST results to Sensu server (" ++ reason ++ ")"
