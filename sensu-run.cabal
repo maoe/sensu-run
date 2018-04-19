@@ -26,6 +26,7 @@ executable sensu-run
   main-is: sensu-run.hs
   build-depends:
       aeson >= 0.11 && < 1.4
+    , async < 2.3
     , base >= 4.9 && < 4.12
     , bytestring >= 0.10 && < 0.11
     , filepath >= 1.4.1 && < 1.5
