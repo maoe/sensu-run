@@ -123,16 +123,23 @@ sendToClientSocketInput
   -> BL8.ByteString -- ^ Payload
   -> IO ()
 sendToClientSocketInput port payload = bracket open close $ \sock -> do
-  localhost <- inet_addr "127.0.0.1"
-  connect sock $ SockAddrInet port localhost
-  Socket.sendAll sock payload
-  `catch` \(ioe :: IOException) -> do
-    hPutStrLn stderr $
-      "Failed to write results to localhost:" ++ show port
-        ++ " (" ++ show ioe ++ ")"
-    exitFailure
+  info <- getAddrInfo (Just hints) (Just "127.0.0.1") (Just $ show port)
+  case info of
+    [] -> ioError $ userError "sendToClientSocketInput: failed to get AddrInfo"
+    localhost:_ -> do
+      connect sock $ addrAddress localhost
+      Socket.sendAll sock payload
+      `catch` \(ioe :: IOException) -> do
+        hPutStrLn stderr $
+          "Failed to write results to localhost:" ++ show port
+            ++ " (" ++ show ioe ++ ")"
+        exitFailure
   where
     open = socket AF_INET Stream defaultProtocol
+    hints = defaultHints
+      { addrFamily = AF_INET
+      , addrSocketType = Stream
+      }
 
 sendToSensuServer
   :: NonEmpty String -- ^ Sensu server base URLs
