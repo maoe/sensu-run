@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.5.0.1 -- 2018-04-30
+
+* Relax upper version bound for network and fix a warning
+
 ## 0.5.0 -- 2018-04-20
 
 * Add support for HTTPS (#18)
