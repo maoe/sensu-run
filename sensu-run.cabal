@@ -1,5 +1,5 @@
 name: sensu-run
-version: 0.5.0.1
+version: 0.5.0.2
 synopsis: A tool to send command execution results to Sensu
 description:
   @sensu-run@ is a command line tool to send command execution results to Sensu
