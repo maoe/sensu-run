@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.5.0.2 -- 2018-06-11
+
+* Relax upper version bound for aeson
+
 ## 0.5.0.1 -- 2018-04-30
 
 * Relax upper version bound for network and fix a warning
