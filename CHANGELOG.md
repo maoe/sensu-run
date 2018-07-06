@@ -1,5 +1,10 @@
 # Revision history for sensu-run
 
+## 0.5.0.3 -- 2018-07-07
+
+* Relax upper version bound for lens
+* Update Stackage LTS to 11.16
+
 ## 0.5.0.2 -- 2018-06-11
 
 * Relax upper version bound for aeson
