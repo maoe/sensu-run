@@ -1,5 +1,10 @@
 # Revision history for sensu-run
 
+## 0.6.0 -- 2018-07-09
+
+* Lock a file to prevent multiple instances of the same name from running
+    * Use --no-lock option to disable this behavior
+
 ## 0.5.0.3 -- 2018-07-07
 
 * Relax upper version bound for lens

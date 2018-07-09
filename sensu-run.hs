@@ -27,16 +27,18 @@ import qualified System.Timeout as Timeout
 import Prelude
 
 import Control.Concurrent.Async
-import Control.Lens hiding ((.=))
+import Control.Lens hiding ((.=), (<.>))
 import Data.Time
 import Data.Time.Clock.POSIX
 import Network.HTTP.Client (HttpException)
 import Network.HTTP.Client.TLS
 import Network.Socket
-import System.FilePath ((</>))
+import System.Directory (removeFile)
+import System.FileLock
+import System.FilePath ((</>), (<.>))
 import System.IO.Temp
-import System.Process
 import System.PosixCompat.User (getEffectiveUserName)
+import System.Process
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.Char8 as BL8
@@ -67,56 +69,72 @@ main = do
     ShowVersion -> do
       putStrLn $ "sensu-run " ++ V.showVersion Paths.version
       exitSuccess
-    RunOptions {..} -> withSystemTempFile "sensu-run.XXX" $ \path hdl -> do
-      executed <- getCurrentTime
-      rawStatus <- try $ bracket
-        (startProcess cmdspec)
-        (\(_, _, ph) -> do
-          terminateProcess ph
-          killProcessTree ph
-          waitForProcess ph)
-        $ \(out, err, ph) -> do
-          aout <- async $ redirectOutput out $ if redirect
-            then [hdl, stdout] else [hdl]
-          aerr <- async $ redirectOutput err $ if redirect
-            then [hdl, stderr] else [hdl]
-          mapM_ waitCatch [aout, aerr]
-          withTimeout timeout $ waitForProcess ph
-      hClose hdl
-      exited <- getCurrentTime
-      rawOutput <- BL.readFile path
-      user <- T.pack <$> getEffectiveUserName
-      let
-        encoded = encode CheckResult
-          { command = cmdspec
-          , output = TL.toLazyText $ mconcat
-            [ TL.fromLazyText (TL.decodeUtf8With TE.lenientDecode rawOutput)
-            , case rawStatus of
-              Left (ioe :: IOException) -> "\n" <> TL.fromString (show ioe)
-              Right Nothing -> "\n" <> "sensu-run: timed out"
-              Right _ -> mempty
-            ]
-          , status = case rawStatus of
-            Right (Just ExitSuccess) -> OK
-            Right (Just ExitFailure {}) -> CRITICAL
-            _ -> UNKNOWN
-          , duration = diffUTCTime exited executed
-          , ..
-          }
-      if dryRun
-        then BL8.putStrLn encoded
-        else case endpoint of
-          ClientSocketInput port -> sendToClientSocketInput port encoded
-          SensuServer urls -> sendToSensuServer urls encoded
-      case rawStatus of
-        Left ioe -> do
-          hPutStrLn stderr $ show ioe
-          exitFailure
-        Right (Just ExitSuccess) -> exitSuccess
-        Right Nothing -> do
-          hPutStrLn stderr $ showCmdSpec cmdspec ++ " timed out"
-          exitFailure
-        Right (Just ExitFailure {}) -> exitFailure
+    RunOptions {..} -> exclusivelyIf lock name $
+      withSystemTempFile "sensu-run.XXX" $ \path hdl -> do
+        executed <- getCurrentTime
+        rawStatus <- try $ bracket
+          (startProcess cmdspec)
+          (\(_, _, ph) -> do
+            terminateProcess ph
+            killProcessTree ph
+            waitForProcess ph)
+          $ \(out, err, ph) -> do
+            aout <- async $ redirectOutput out $ if redirect
+              then [hdl, stdout] else [hdl]
+            aerr <- async $ redirectOutput err $ if redirect
+              then [hdl, stderr] else [hdl]
+            mapM_ waitCatch [aout, aerr]
+            withTimeout timeout $ waitForProcess ph
+        hClose hdl
+        exited <- getCurrentTime
+        rawOutput <- BL.readFile path
+        user <- T.pack <$> getEffectiveUserName
+        let
+          encoded = encode CheckResult
+            { command = cmdspec
+            , output = TL.toLazyText $ mconcat
+              [ TL.fromLazyText (TL.decodeUtf8With TE.lenientDecode rawOutput)
+              , case rawStatus of
+                Left (ioe :: IOException) -> "\n" <> TL.fromString (show ioe)
+                Right Nothing -> "\n" <> "sensu-run: timed out"
+                Right _ -> mempty
+              ]
+            , status = case rawStatus of
+              Right (Just ExitSuccess) -> OK
+              Right (Just ExitFailure {}) -> CRITICAL
+              _ -> UNKNOWN
+            , duration = diffUTCTime exited executed
+            , ..
+            }
+        if dryRun
+          then BL8.putStrLn encoded
+          else case endpoint of
+            ClientSocketInput port -> sendToClientSocketInput port encoded
+            SensuServer urls -> sendToSensuServer urls encoded
+        case rawStatus of
+          Left ioe -> do
+            hPutStrLn stderr $ show ioe
+            exitFailure
+          Right (Just ExitSuccess) -> exitSuccess
+          Right Nothing -> do
+            hPutStrLn stderr $ showCmdSpec cmdspec ++ " timed out"
+            exitFailure
+          Right (Just ExitFailure {}) -> exitFailure
+
+exclusivelyIf :: Bool -> T.Text -> IO a -> IO a
+exclusivelyIf exclusive name io
+  | exclusive = do
+    tmpDir <- getCanonicalTemporaryDirectory
+    let path = tmpDir </> "sensu-run" <.> T.unpack name <.> "lock"
+    r <- withTryFileLock path Exclusive (const io)
+    case r of
+      Nothing -> do
+        putStrLn $ path ++ " is aquired by other process"
+        exitSuccess
+      Just a -> do
+        removeFile path
+        return a
+  | otherwise = io
 
 sendToClientSocketInput
   :: PortNumber -- ^ Listening port of Sensu client socket
@@ -215,6 +233,7 @@ data Options
     , handlers :: [T.Text]
     , endpoint :: Endpoint
     , redirect :: Bool
+    , lock :: Bool
     , dryRun :: Bool
     }
 
@@ -270,6 +289,10 @@ options = asum
       redirect <- O.switch $ mconcat
         [ O.long "redirect"
         , O.help "Redirect command output to sensu-run's output"
+        ]
+      (not -> lock) <- O.switch $ mconcat
+        [ O.long "no-lock"
+        , O.help "Do not create a lock file to allow multiple instances to run"
         ]
       dryRun <- O.switch $ mconcat
         [ O.long "dry-run"
