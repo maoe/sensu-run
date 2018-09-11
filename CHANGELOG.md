@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.6.0.1 -- 2018-09-11
+
+* Relax upper version bound for network
+
 ## 0.6.0 -- 2018-07-09
 
 * Lock a file to prevent multiple instances of the same name from running
