@@ -27,7 +27,7 @@ executable sensu-run
   build-depends:
       aeson >= 0.11 && < 1.5
     , async < 2.3
-    , base >= 4.9 && < 4.12
+    , base >= 4.9 && < 4.13
     , bytestring >= 0.10 && < 0.11
     , directory < 1.4
     , filelock < 0.2
