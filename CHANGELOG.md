@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.6.0.3 -- 2018-11-06
+
+* Relax upper version bound for base
+
 ## 0.6.0.2 -- 2018-09-12
 
 * Add source-repository stanza in the cabal file
