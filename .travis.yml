@@ -31,6 +31,7 @@ matrix:
   include:
     - compiler: "ghc-8.6.3"
     # env: TEST=--disable-tests BENCH=--disable-benchmarks
+      env: GITHUB_RELEASE=true HACKAGE_RELEASE=true
       addons: {apt: {packages: [ghc-ppa-tools,cabal-install-2.4,ghc-8.6.3,jq], sources: [hvr-ghc]}}
     - compiler: "ghc-8.4.4"
     # env: TEST=--disable-tests BENCH=--disable-benchmarks
@@ -46,6 +47,7 @@ matrix:
       addons: {apt: {packages: [ghc-ppa-tools,cabal-install-head,ghc-head,jq], sources: [hvr-ghc]}}
     - compiler: "ghc-8.6.3"
     # env: TEST=--disable-tests BENCH=--disable-benchmarks
+      env: GITHUB_RELEASE=true
       addons: {homebrew: {packages: [python@3, jq], update: true}}
       os: osx
 
@@ -150,6 +152,7 @@ deploy:
   on:
     repo: maoe/sensu-run
     tags: true
+    condition: $GITHUB_RELEASE = true
 - provider: hackage
   username: MitsutoshiAoe
   password:
@@ -157,6 +160,6 @@ deploy:
   on:
     repo: maoe/sensu-run
     tags: true
-    condition: $TRAVIS_OS_NAME = linux
+    condition: $HACKAGE_RELEASE = true
 
 # EOF
