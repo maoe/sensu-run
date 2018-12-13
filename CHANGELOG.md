@@ -1,5 +1,10 @@
 # Revision history for sensu-run
 
+## 0.6.1 -- 2018-12-13
+
+* Fix the broken --timeout option
+* Add support for GHC 8.6
+
 ## 0.6.0.3 -- 2018-11-06
 
 * Relax upper version bound for base
