@@ -83,8 +83,11 @@ main = do
               then [hdl, stdout] else [hdl]
             aerr <- async $ redirectOutput err $ if redirect
               then [hdl, stderr] else [hdl]
+            status <- withTimeout timeout $ waitForProcess ph
+            terminateProcess ph
+            killProcessTree ph
             mapM_ waitCatch [aout, aerr]
-            withTimeout timeout $ waitForProcess ph
+            return status
         hClose hdl
         exited <- getCurrentTime
         rawOutput <- BL.readFile path
