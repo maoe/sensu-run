@@ -1,10 +1,11 @@
+cabal-version: 2.2
 name: sensu-run
 version: 0.6.1
 synopsis: A tool to send command execution results to Sensu
 description:
   @sensu-run@ is a command line tool to send command execution results to Sensu
   monitoring server.
-license: BSD3
+license: BSD-3-Clause
 license-file: LICENSE
 author: Mitsutoshi Aoe
 maintainer: me@maoe.name
@@ -16,7 +17,6 @@ build-type: Simple
 extra-source-files:
   CHANGELOG.md
   README.md
-cabal-version: >= 1.10
 tested-with:
   GHC == 8.0.2
   GHC == 8.2.2
@@ -26,7 +26,7 @@ tested-with:
 executable sensu-run
   main-is: sensu-run.hs
   build-depends:
-      aeson >= 0.11 && < 1.5
+    , aeson >= 0.11 && < 1.5
     , async < 2.3
     , base >= 4.9 && < 4.13
     , bytestring >= 0.10 && < 0.11
@@ -49,6 +49,8 @@ executable sensu-run
   other-modules:
     Paths_sensu_run
     System.Process.Kill
+  autogen-modules:
+    Paths_sensu_run
   if os(windows)
     cpp-options: -DWINDOWS
   else
