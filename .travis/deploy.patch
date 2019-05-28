@@ -1,0 +1,31 @@
+diff --git a/.travis.yml b/.travis.yml
+index 16af3a5..ab4b9a1 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -164,3 +164,26 @@ script:
+
+ # REGENDATA ["travis","sensu-run.cabal","--ghc-head","--osx","8.6.5","--apt","jq"]
+ # EOF
++
++before_deploy:
++- exe=$(jq -r '."install-plan" | .[] | select(."pkg-name" == "sensu-run") | ."bin-file"' < dist-newstyle/cache/plan.json)
++- cp "$exe" sensu-run.$TRAVIS_OS_NAME
++- gzip -f sensu-run.$TRAVIS_OS_NAME
++deploy:
++- provider: releases
++  api_key:
++    secure: bwQKjTJpPGuM9auUZhBkMa8dzt7FAyXbqMVJ8QNVggfanFY4IfCR8uu+Mor2QDr/ugVB2KFWnRbBEHzBz6qdy+U5Y3L7IkECaxDQxY3fpSPEHnGQaam93/KjgeuABzOyMTlGJV/HxD4QxCKEVFiWYQVLbBH+XquMLdkTYrH8ewScTQo28KUqU9VLktDLnNyq/hhCq0M95L8mb6cMJTAWz7LmWtPcJin9WeTsDutukctHUruTXjZocUY5ieq6+SI2UpF1+uI19nHOlSOGmNgEqTD2OJUkgBQHvQzd+5HxjZA4pWHSeiyKB4XAOGr9/LCO5KIkYL1Z5+4iognvlK8Z4bqOg/JMnYRe6nQ5p3huUJobPzIcH3phmEMu2rFVja4Pv3eizNNp7bpXFf4KkjAVCCmtGNRJZbYEU6jzfrUvK0AZ5Y3M7mPYq09ag0hyQKedwkrGle2fj+uuHJopGS46yJwd7ZRxBKZ427L79uD4rkeLQXyPhrMTUUDp2CfwmP+FQt1IGAL1+9TsvLbqWxT7WZiKtMTO4SYiCZG1Sk8VGCLhhA+rf96kPujapAbZKhh2eSS32nDUvU6SkekZMHhyKaugGvAL+Do1b7hIC2qOn/TajiLZskccoqwFB6+ZqBilz9olVB1x79yXZeH02jiSBMjTFxwvKZysRHcNRH6Dj/A=
++  file: "sensu-run.$TRAVIS_OS_NAME.gz"
++  skip_cleanup: true
++  on:
++    repo: maoe/sensu-run
++    tags: true
++    condition: $GITHUB_RELEASE = true
++- provider: hackage
++  username: MitsutoshiAoe
++  password:
++    secure: kH7EieRMx+9Sk7K+bo+rFnbZdJ6rlh6nFqCgLXFHTT4ofcvVvQ6bnSWdSleMG0chqElJ0jASqV9V2jpEb7yAoujJRJUbwHsP86A7qZLYkslDdJKLcc5mzuUbD8RqAhumb9BDZFXp+vGXWSaQBoqg9GSyTmsPGWT3GJLiZmEXELZHJMoaN7pEYoNUiCF6cd3Jz/WdXn7QqY9KicqtSeIsvJzy2JNsVwfJ++u2cLdtI+63hPWoCTWMHHIVf3/TLAFHCtYSkB8E2DtodMlqd4b46R4bTKqFiM/27txaizR5VuaPGfA3ygCBZMCP+yPrlhFtG7FOZnfvUiCFD2Q63Uw2MYBKpiTbl7jWoDsA1FHST7kfqEovAWducu4XVoXrcmjIa3cpg9N9eMsXHso/JYMyQQ9NqhbomHYwslIoK29gaLc6H4gyBAUxoVEB/ioko8ZbHqiAZzcxkkXLuewyG791LojdfMqGMEwISEE/KFlte3gJkZFLOYEXz+KSKO4v8MQmtn3cGqaTfa/D5r8NEBAF3vsxuKLRjd80YYqC1Gkp20wNEM+8faVea3U/y43+9ACwRo95l8GIkXl41VArpFNW9+nObsHtMvtYLxElH+hP6To2aHTTa1nWcRC99fopwRPF68VbHyxgrLD6oCN8zHA3SuQ6fx9O5n2zeH+lp+bKBBM=
++  on:
++    repo: maoe/sensu-run
++    tags: true
++    condition: $HACKAGE_RELEASE = true
