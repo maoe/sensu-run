@@ -1,5 +1,11 @@
 # Revision history for sensu-run
 
+## 0.6.1.1 -- 2019-05-28
+
+* Relax upper version bounds for http-client and network
+* Specify cabal-version: 2.2
+* Update .travis.yml with newer GHCs
+
 ## 0.6.1 -- 2018-12-13
 
 * Fix the broken --timeout option
