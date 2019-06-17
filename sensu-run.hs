@@ -395,7 +395,6 @@ signalsToTrap =
   [ sigHUP
   , sigINT
   , sigQUIT
-  , sigPIPE
   , sigTERM
   ]
 
