@@ -105,3 +105,5 @@ Without the `--dry-run` option, `sensu-run` sends the output to localhost:PORT, 
 ```sh
 sensu-run --name check-true --handler foo --server sensu1.example.com --server sensu2.example.com --dry-run -- du -s $HOME/src
 ```
+
+## Handling signals on UNIX systems
