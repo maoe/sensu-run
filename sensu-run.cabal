@@ -18,8 +18,6 @@ extra-source-files:
   CHANGELOG.md
   README.md
 tested-with:
-  GHC == 8.0.2
-  GHC == 8.2.2
   GHC == 8.4.4
   GHC == 8.6.5
   GHC == 8.8.1
@@ -29,7 +27,7 @@ executable sensu-run
   build-depends:
     , aeson >= 0.11 && < 1.5
     , async < 2.3
-    , base >= 4.9 && < 4.13
+    , base >= 4.11 && < 4.13
     , bytestring >= 0.10 && < 0.11
     , directory < 1.4
     , filelock < 0.2
