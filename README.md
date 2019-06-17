@@ -107,3 +107,10 @@ sensu-run --name check-true --handler foo --server sensu1.example.com --server s
 ```
 
 ## Handling signals on UNIX systems
+
+`sensu-run` traps the following signals and resends them to the monitored process:
+
+* SIGHUP
+* SIGINT
+* SIGQUIT
+* SIGTERM
