@@ -1,8 +1,6 @@
 # sensu-run
 [![Hackage](https://img.shields.io/hackage/v/sensu-run.svg)](http://hackage.haskell.org/package/sensu-run)
 [![Hackage-Deps](https://img.shields.io/hackage-deps/v/sensu-run.svg)](http://packdeps.haskellers.com/feed?needle=sensu-run)
-[![Stackage LTS](http://stackage.org/package/sensu-run/badge/lts)](http://stackage.org/lts/package/sensu-run)
-[![Stackage Nightly](http://stackage.org/package/sensu-run/badge/nightly)](http://stackage.org/nightly/package/sensu-run)
 [![Build Status](https://travis-ci.org/maoe/sensu-run.svg?branch=master)](https://travis-ci.org/maoe/sensu-run)
 [![Build status](https://ci.appveyor.com/api/projects/status/k9594kkn4tncotqt/branch/master?svg=true)](https://ci.appveyor.com/project/maoe/sensu-run/branch/master)
 
@@ -30,8 +28,8 @@ will install the `sensu-run` command in `~/.local/bin`.
 % sensu-run --help
 Usage: sensu-run ([-n|--name NAME] [--source SOURCE] [--ttl SECONDS]
                  [--timeout SECONDS] [--handler HANDLER] ([--port PORT] |
-                 [--server URL]) [--redirect] [--dry|--dry-run] [-s|--shell]
-                 [COMMAND] | [-v|--version])
+                 [--server URL]) [--redirect] [--no-lock] [--dry|--dry-run]
+                 [-s|--shell] [COMMAND] | [-v|--version])
 
 Available options:
   -h,--help                Show this help text
@@ -47,6 +45,8 @@ Available options:
                            the specified port (default: 3030)
   --server URL             Send results to the specified Sensu server
   --redirect               Redirect command output to sensu-run's output
+  --no-lock                Do not create a lock file to allow multiple instances
+                           to run
   --dry,--dry-run          Dump the JSON object which is supposed to be sent
   -s,--shell               Execute the command using the shell
 ```
@@ -105,3 +105,12 @@ Without the `--dry-run` option, `sensu-run` sends the output to localhost:PORT, 
 ```sh
 sensu-run --name check-true --handler foo --server sensu1.example.com --server sensu2.example.com --dry-run -- du -s $HOME/src
 ```
+
+## Handling signals on UNIX systems
+
+`sensu-run` traps the following signals and resends them to the monitored process:
+
+* SIGHUP
+* SIGINT
+* SIGQUIT
+* SIGTERM

@@ -21,6 +21,7 @@ import Data.Maybe
 import Data.Monoid
 import System.Exit
 import System.IO
+import Text.Printf (hPrintf)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Version as V
 import qualified System.Timeout as Timeout
@@ -60,6 +61,8 @@ import Data.Aeson
 #if MIN_VERSION_aeson(1, 2, 2)
   hiding (Options)
 #endif
+
+import System.Posix.Signals
 
 main :: IO ()
 main = do
@@ -208,6 +211,7 @@ startProcess cmdspec = do
     , use_process_jobs = True
 #endif
     }
+  getPid ph >>= traverse_ installSignalHandlers
   return (out, err, ph)
 
 redirectOutput :: Handle -> [Handle] -> IO ()
@@ -384,3 +388,24 @@ showCmdSpec :: CmdSpec -> String
 showCmdSpec = \case
   ShellCommand cmd -> cmd
   RawCommand cmd args -> unwords $ cmd:args
+
+-- | List of signals to trap
+signalsToTrap :: [Signal]
+signalsToTrap =
+  [ sigHUP
+  , sigINT
+  , sigQUIT
+  , sigTERM
+  ]
+
+installSignalHandlers :: Pid -> IO ()
+installSignalHandlers pid =
+  for_ signalsToTrap $ \sig ->
+    installHandler sig (handler sig) (Just reservedSignals)
+  where
+    handler sig = CatchOnce $ do
+      hPrintf stderr
+        "sensu-run caught signal %s. Resending the signal to PID %s.\n"
+        (show sig)
+        (show pid)
+      signalProcess sig pid

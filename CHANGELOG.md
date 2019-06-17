@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.7.0 -- 2019-06-17
+
+* Handle signals and resend them to the monitored process (#27)
+
 ## 0.6.1.1 -- 2019-05-28
 
 * Relax upper version bounds for http-client and network
