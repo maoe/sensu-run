@@ -1,4 +1,3 @@
-
 cabal-version: 2.2
 name: sensu-run
 version: 0.7.0.1
