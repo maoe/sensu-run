@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.7.0.1 -- 2019-06-18
+
+* Minor fix to .travis.yml. No changes in Haskell code.
+
 ## 0.7.0 -- 2019-06-17
 
 * Handle signals and resend them to the monitored process (#27)
