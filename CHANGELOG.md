@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.7.0.3 -- 2019-08-20
+
+* Relax upper version bound for optparse-applicative
+
 ## 0.7.0.2 -- 2019-06-18
 
 * Fix redundant newline at the beginning of the cabal file
