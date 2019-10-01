@@ -1,12 +1,12 @@
 diff --git a/.travis.yml b/.travis.yml
-index 1ed9f1c..aac32ca 100644
+index 994f738..18e3909 100644
 --- a/.travis.yml
 +++ b/.travis.yml
-@@ -42,7 +42,7 @@ matrix:
+@@ -36,7 +36,7 @@ matrix:
+     - compiler: ghc-head
        addons: {"apt":{"sources":["hvr-ghc"],"packages":["ghc-head","cabal-install-head","jq"]}}
-       env: GHCHEAD=true
-     - compiler: ghc-8.6.5
--      addons: {"apt":{"sources":["hvr-ghc"],"packages":["ghc-8.6.5","cabal-install-2.4","jq"]}}
+     - compiler: ghc-8.8.1
+-      addons: {"apt":{"sources":["hvr-ghc"],"packages":["ghc-8.8.1","cabal-install-3.0","jq"]}}
 +      addons: {"homebrew":{"packages":["jq"]}}
        os: osx
    allow_failures:
