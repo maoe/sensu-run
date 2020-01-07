@@ -4,7 +4,7 @@ index 16af3a5..ab4b9a1 100644
 +++ b/.travis.yml
 @@ -164,3 +164,26 @@ script:
 
- # REGENDATA ["travis","sensu-run.cabal","--ghc-head","--osx","8.6.5","--apt","jq"]
+ # REGENDATA ["travis","sensu-run.cabal","--ghc-head","--osx","8.8.1","--apt","jq"]
  # EOF
 +
 +before_deploy:

@@ -1,5 +1,9 @@
 # Revision history for sensu-run
 
+## 0.7.0.4 -- 2019-01-07
+
+* Relax upper version bounds for base and lens
+
 ## 0.7.0.3 -- 2019-08-20
 
 * Relax upper version bound for optparse-applicative
