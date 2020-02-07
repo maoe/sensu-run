@@ -20,7 +20,7 @@ extra-source-files:
 tested-with:
   GHC == 8.4.4
   GHC == 8.6.5
-  GHC == 8.8.1
+  GHC == 8.8.2
 
 executable sensu-run
   main-is: sensu-run.hs
