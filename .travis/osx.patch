@@ -1,16 +1,14 @@
-diff --git a/.travis.yml b/.travis.yml
-index 1ed9f1c..aac32ca 100644
 --- a/.travis.yml
 +++ b/.travis.yml
-@@ -42,7 +42,7 @@ matrix:
-       addons: {"apt":{"sources":["hvr-ghc"],"packages":["ghc-head","cabal-install-head","jq"]}}
-       env: GHCHEAD=true
-     - compiler: ghc-8.8.1
--      addons: {"apt":{"sources":[{"sourceline":"deb http://ppa.launchpad.net/hvr/ghc/ubuntu xenial main","key_url":"https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x063dab2bdc0b3f9fcebc378bff3aeacef6f88286"}],"packages":["ghc-8.8.1","cabal-install-3.0","jq"]}}
+@@ -44,7 +44,7 @@ jobs:
+       addons: {"apt":{"sources":[{"sourceline":"deb http://ppa.launchpad.net/hvr/ghc/ubuntu xenial main","key_url":"https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x063dab2bdc0b3f9fcebc378bff3aeacef6f88286"}],"packages":["ghc-head","cabal-install-head","jq"]}}
+       os: linux
+     - compiler: ghc-8.8.2
+-      addons: {"apt":{"sources":[{"sourceline":"deb http://ppa.launchpad.net/hvr/ghc/ubuntu xenial main","key_url":"https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x063dab2bdc0b3f9fcebc378bff3aeacef6f88286"}],"packages":["ghc-8.8.2","cabal-install-3.0","jq"]}}
 +      addons: {"homebrew":{"packages":["jq"]}}
        os: osx
+       env: GITHUB_RELEASE=true
    allow_failures:
-     - compiler: ghc-head
 @@ -60,7 +60,7 @@ before_install:
    - CABALHOME=$HOME/.cabal
    - export PATH="$CABALHOME/bin:$PATH"
